@@ -621,8 +621,7 @@ void Vwr::CameraManipulator::trackball( osg::Vec3& axis,float& angle, float p1x,
  */
 float Vwr::CameraManipulator::tb_project_to_sphere( float r, float x, float y )
 {
-	float d, t, z;
-
+	float d, z;
 
 	d =( float ) sqrt( x*x + y*y );
 	/* Inside sphere */
@@ -630,7 +629,7 @@ float Vwr::CameraManipulator::tb_project_to_sphere( float r, float x, float y )
 		z = ( float )sqrt( r*r - d*d );
 	}                            /* On hyperbola */
 	else {
-		t =( float ) r / 1.41421356237309504880f;
+		float t =( float ) r / 1.41421356237309504880f;
 		z = t*t / d;
 	}
 	return z;

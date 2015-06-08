@@ -109,7 +109,7 @@ Data::Graph* Model::GraphDAO::getGraph( QSqlDatabase* conn, bool* error2, qlongl
 	QSqlQuery* queryNodes;
 	QSqlQuery* queryEdges;
 	QString graphName, layoutName, nodeName, edgeName;
-	bool error = false,  isOriented;
+	bool error = false;
 	//TODO repair of getting Graph
 	//bool isFixed;
 	qlonglong nodeID1, nodeID2, nodeID, edgeID, maxIdEleUsed = 0;
@@ -117,7 +117,6 @@ Data::Graph* Model::GraphDAO::getGraph( QSqlDatabase* conn, bool* error2, qlongl
 	QMap<qlonglong, Data::Node*> nodes;
 	QMap<qlonglong, Data::Node*>::iterator iNodes1;
 	QMap<qlonglong, Data::Node*>::iterator iNodes2;
-	Data::Node* newNode;
 	osg::Vec3f position;
 	QMap<qlonglong, osg::Vec3f> positions;
 	QMap<qlonglong, osg::Vec4> nodeColors;
@@ -166,7 +165,7 @@ Data::Graph* Model::GraphDAO::getGraph( QSqlDatabase* conn, bool* error2, qlongl
 				position = positions.value( nodeID );
 			}
 
-			newNode = newGraph->addNode( nodeID, nodeName, type, position );
+			Data::Node* newNode = newGraph->addNode( nodeID, nodeName, type, position );
 
 			//vsetky uzly nastavime fixed, aby sme zachovali layout
 			//hodnota, ktora je ulozena v DB - premenna isFixed
@@ -203,7 +202,7 @@ Data::Graph* Model::GraphDAO::getGraph( QSqlDatabase* conn, bool* error2, qlongl
 			nodeID1 = queryEdges->value( 3 ).toLongLong();
 			nodeID2 = queryEdges->value( 4 ).toLongLong();
 			type = queryEdges->value( 6 ).toBool() ? typeMetaEdge : typeEdge;
-			isOriented = queryEdges->value( 5 ).toBool();
+			bool isOriented = queryEdges->value( 5 ).toBool();
 
 			if ( maxIdEleUsed < edgeID ) {
 				maxIdEleUsed = edgeID + 1;
