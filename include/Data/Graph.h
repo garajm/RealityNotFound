@@ -449,7 +449,7 @@ public:
 	    *  \brief Returns QMap of the Nodes assigned to the Graph
 	    *  \return QMap<qlonglong,osg::ref_ptr<Data::Node> > * Nodes assigned to the Graph
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* getNodes() const
+    QMap<QString, osg::ref_ptr<Data::Node> >* getNodes() const
 	{
 		return nodes;
 	}
@@ -883,7 +883,7 @@ private:
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Node> > * nodes
 	    *  \brief Nodes in the Graph
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes;
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Edge> > * edges
