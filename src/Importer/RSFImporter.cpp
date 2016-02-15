@@ -14,12 +14,12 @@ namespace Importer {
 
 osg::ref_ptr<Data::Node> RSFImporter::getHyperEdge(
 	QString srcNodeName,
-	QString edgeName,QMap<qlonglong,
+    QString edgeName,QMap<QString,
 	osg::ref_ptr<Data::Edge> >* mapa )
 {
 	osg::ref_ptr<Data::Node> hyperEdgeNode1;
 	//zaciatocny bod hyperhrany
-	for ( QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator it = mapa->begin(); it != mapa->end(); ++it ) {
+    for ( QMap<QString, osg::ref_ptr<Data::Edge> >::iterator it = mapa->begin(); it != mapa->end(); ++it ) {
 		osg::ref_ptr<Data::Edge> existingEdge = it.value();
 		if (
 			( ( Data::AbsNode* )existingEdge->getSrcNode() )->getName() == srcNodeName &&
@@ -88,7 +88,7 @@ bool RSFImporter::import(
 				}
 				//vytvorenie celej hyperhrany
 				osg::ref_ptr<Data::Node> hyperEdgeNode;
-				QMap<qlonglong, osg::ref_ptr<Data::Edge> >* mapa = context.getGraph().getEdges();
+                QMap<QString, osg::ref_ptr<Data::Edge> >* mapa = context.getGraph().getEdges();
 
 				hyperEdgeNode=RSFImporter().getHyperEdge( srcNodeName,edgeName,mapa );
 				if ( !hyperEdgeNode.valid() ) {

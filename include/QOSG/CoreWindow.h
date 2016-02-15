@@ -501,7 +501,7 @@ public slots:
 	            *  \fn public  create_Vertigo_Planes
 	            *  \brief creates planes and restricts the nodes of current graph nodes according to their depth of spanning tree
 	            */
-	void create_Vertigo_Planes( int numberOfPlanes, int nOfDepthsInOnePlane, Data::GraphSpanningTree* spanningTree, int maxDepth, QMap<qlonglong, osg::ref_ptr<Data::Node> >* allNodes );
+    void create_Vertigo_Planes( int numberOfPlanes, int nOfDepthsInOnePlane, Data::GraphSpanningTree* spanningTree, int maxDepth, QMap<QString, osg::ref_ptr<Data::Node> >* allNodes );
 	/**
 	            *  \fn public  change_Vertigo_Planes_Distance
 	            *  \brief changes the distance between the planes

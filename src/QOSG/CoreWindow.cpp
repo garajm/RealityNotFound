@@ -2332,7 +2332,7 @@ void CoreWindow::setRestriction_ConeTree()
 	if ( currentGraph == NULL ) {
 		return;
 	}
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* allNodes = currentGraph->getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* allNodes = currentGraph->getNodes();
 
 	osg::ref_ptr<Data::Node> rootNode = viewerWidget->getPickHandler()->getPickedNodeWithMaxEdgeCount();
 	if ( rootNode == NULL ) {
@@ -2354,12 +2354,12 @@ void CoreWindow::setRestriction_ConeTree()
 			continue;
 		}
 		pickedNodes.clear();
-		QList<qlonglong> nodes = spanningTree->getNodesInGroup( *groupIt );
-		QList<qlonglong>::iterator nodeIt;
+        QList<QString> nodes = spanningTree->getNodesInGroup( *groupIt );
+        QList<QString>::iterator nodeIt;
 		for ( nodeIt=nodes.begin(); nodeIt!=nodes.end(); ++nodeIt ) {
 			pickedNodes.append( allNodes->value( *nodeIt ) );
 		}
-		osg::ref_ptr<Data::Node> parentNode = allNodes->value( *groupIt );
+        osg::ref_ptr<Data::Node> parentNode = allNodes->value( QString::number( *groupIt ) );
 		setRestriction_Cone( &pickedNodes,parentNode );
 	}
 
@@ -2370,7 +2370,7 @@ void CoreWindow::setRestriction_ConeTree()
 
 		QList<qlonglong>::iterator groupIt;
 		for ( groupIt=groups.begin(); groupIt!=groups.end(); ++groupIt ) {
-			qlonglong nodeId = spanningTree->getRandomNodeInGroup( *groupIt );
+            QString nodeId = spanningTree->getRandomNodeInGroup( *groupIt );
 			pickedNodes.append( allNodes->value( nodeId ) );
 
 		}
@@ -2462,7 +2462,7 @@ void CoreWindow::startEdgeBundling()
 
 		if ( currentGraph != NULL ) {
 			//select all nodes and fix them
-			QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator iNode = currentGraph->getNodes()->begin();
+            QMap<QString, osg::ref_ptr<Data::Node> >::iterator iNode = currentGraph->getNodes()->begin();
 			while ( iNode != currentGraph->getNodes()->end() ) {
 				( *iNode )->setFixed( true );
 				( *iNode )->setDefaultColor();
@@ -2590,7 +2590,7 @@ void CoreWindow::setRestrictionToAllNodes(
 {
 	QSet<Data::Node*> nodes;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator j;
+    QMap<QString, osg::ref_ptr<Data::Node> >::iterator j;
 	j = Manager::GraphManager::getInstance()->getActiveGraph()->getNodes()->begin();
 	for ( int i = 0; i < Manager::GraphManager::getInstance()->getActiveGraph()->getNodes()->count(); ++i,++j ) {
 		nodes.insert( j.value() );
@@ -2677,9 +2677,9 @@ bool CoreWindow::add_EdgeClick()
 	++ni;
 	node1=( * ni );
 	++ni;
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* mapa = currentGraph->getEdges();
+    QMap<QString, osg::ref_ptr<Data::Edge> >* mapa = currentGraph->getEdges();
 	Data::Type* type = currentGraph->addType( Data::GraphLayout::META_EDGE_TYPE );
-	for ( QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator it = mapa->begin(); it != mapa->end(); ++it ) {
+    for ( QMap<QString, osg::ref_ptr<Data::Edge> >::iterator it = mapa->begin(); it != mapa->end(); ++it ) {
 		osg::ref_ptr<Data::Edge> existingEdge = it.value();
 		if (
 			existingEdge->getSrcNode() ->getId() == node1 ->getId() &&
@@ -3256,7 +3256,7 @@ void CoreWindow::toggleVertigo()
 // Duransky end - Akcia pri prepnuti checkboxu "Vertigo zoom"
 
 // Duransky start - Funkcia na vytvorenie daneho poctu vertigo rovin
-void CoreWindow::create_Vertigo_Planes( int numberOfPlanes, int nOfDepthsInOnePlane, Data::GraphSpanningTree* spanningTree, int maxDepth, QMap<qlonglong, osg::ref_ptr<Data::Node> >* allNodes )
+void CoreWindow::create_Vertigo_Planes( int numberOfPlanes, int nOfDepthsInOnePlane, Data::GraphSpanningTree* spanningTree, int maxDepth, QMap<QString, osg::ref_ptr<Data::Node> >* allNodes )
 {
 
 	QLinkedList<osg::ref_ptr<Data::Node> > pickedNodes;
@@ -3290,8 +3290,8 @@ void CoreWindow::create_Vertigo_Planes( int numberOfPlanes, int nOfDepthsInOnePl
 		for ( groupIt=groups.begin(); groupIt!=groups.end(); ++groupIt ) {
 
 			// vyber vsetkych skupin a uzlov v skupine danej hlbky
-			QList<qlonglong> nodes = spanningTree->getNodesInGroup( *groupIt );
-			QList<qlonglong>::iterator nodeIt;
+            QList<QString> nodes = spanningTree->getNodesInGroup( *groupIt );
+            QList<QString>::iterator nodeIt;
 
 			for ( nodeIt=nodes.begin(); nodeIt!=nodes.end(); ++nodeIt ) {
 				// nastavi uzlu cislo vertigo roviny, na ktorej sa nachadza
@@ -3330,11 +3330,11 @@ void CoreWindow::add_PlanesClick()
 	}
 
 	// vsetky uzly grafu
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* allNodes = currentGraph->getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* allNodes = currentGraph->getNodes();
 
 	// uzly grafu vlozene do linked listu pre jednoduche iterovanie
 	QLinkedList<osg::ref_ptr<Data::Node> > nodesList;
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator i = allNodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator i = allNodes->constBegin();
 	while ( i != allNodes->constEnd() ) {
 		nodesList.append( i.value() );
 		++i;
@@ -3394,10 +3394,10 @@ void CoreWindow::remove_PlanesClick()
 	if ( numberOfPlanes == 2 ) {
 
 		// vsetky uzly grafu
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >* allNodes = currentGraph->getNodes();
+        QMap<QString, osg::ref_ptr<Data::Node> >* allNodes = currentGraph->getNodes();
 
 		// reset hodnot urcujucich ktorej rovine patri uzol
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator i = allNodes->constBegin();
+        QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator i = allNodes->constBegin();
 		while ( i != allNodes->constEnd() ) {
 			i.value()->setNumberOfVertigoPlane( i.value()->getId() );
 			++i;
@@ -3434,11 +3434,11 @@ void CoreWindow::remove_PlanesClick()
 	}
 
 	// vsetky uzly grafu
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* allNodes = currentGraph->getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* allNodes = currentGraph->getNodes();
 
 	// uzly grafu vlozene do linked listu pre jednoduche iterovanie
 	QLinkedList<osg::ref_ptr<Data::Node> > nodesList;
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator i = allNodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator i = allNodes->constBegin();
 	while ( i != allNodes->constEnd() ) {
 		nodesList.append( i.value() );
 		++i;

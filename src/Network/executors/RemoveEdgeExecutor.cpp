@@ -12,9 +12,9 @@ void RemoveEdgeExecutor::execute_client()
 	*stream >> id;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges = currentGraph -> getEdges();
-	if ( edges->contains( id ) ) {
-		Data::Edge* edge = *edges->find( id );
+    QMap<QString, osg::ref_ptr<Data::Edge> >* edges = currentGraph -> getEdges();
+    if ( edges->contains( QString::number( id ) ) ) {
+        Data::Edge* edge = *edges->find( QString::number( id ) );
 		if ( edge != NULL ) {
 			currentGraph->removeEdge( edge );
 		}
@@ -30,9 +30,9 @@ void RemoveEdgeExecutor::execute_server()
 	*stream >> id;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges = currentGraph -> getEdges();
-	if ( edges->contains( id ) ) {
-		Data::Edge* edge = *edges->find( id );
+    QMap<QString, osg::ref_ptr<Data::Edge> >* edges = currentGraph -> getEdges();
+    if ( edges->contains( QString::number( id ) ) ) {
+        Data::Edge* edge = *edges->find( QString::number( id ) );
 		if ( edge != NULL ) {
 			currentGraph->removeEdge( edge );
 		}

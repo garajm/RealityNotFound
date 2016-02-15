@@ -13,9 +13,9 @@ void SetNodeColorExecutor::execute_client()
 	*stream >> id >> r >> g >> b >> alpha;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	if ( nodes->contains( id ) ) {
-		Data::Node* node = *nodes->find( id );
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    if ( nodes->contains( QString::number( id ) ) ) {
+        Data::Node* node = *nodes->find( QString::number( id ) );
 		node->setColor( osg::Vec4( r,g,b,alpha ) );
 	}
 
@@ -29,9 +29,9 @@ void SetNodeColorExecutor::execute_server()
 	*stream >> id >> r >> g >> b >> alpha;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	if ( nodes->contains( id ) ) {
-		Data::Node* node = *nodes->find( id );
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    if ( nodes->contains( QString::number( id ) ) ) {
+        Data::Node* node = *nodes->find( QString::number( id ) );
 		node->setColor( osg::Vec4( r,g,b,alpha ) );
 	}
 

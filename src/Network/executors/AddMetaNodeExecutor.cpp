@@ -15,7 +15,7 @@ void AddMetaNodeExecutor::execute_client()
 	*stream >> metaNodeId >> name;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
 
 	*stream >> x >> y >> z;
 
@@ -25,8 +25,8 @@ void AddMetaNodeExecutor::execute_client()
 	*stream >> count;
 	for ( int i = 0; i < count; i++ ) {
 		*stream >> id_edge >> id_node;
-		if ( nodes->contains( id_node ) ) {
-			currentGraph->addEdge( id_edge, edgeName, *nodes->find( id_node ), metaNode, currentGraph->getEdgeMetaType(), true );
+        if ( nodes->contains( QString::number( id_node ) ) ) {
+            currentGraph->addEdge( id_edge, edgeName, *nodes->find( QString::number( id_node ) ), metaNode, currentGraph->getEdgeMetaType(), true );
 		}
 	}
 
@@ -42,7 +42,7 @@ void AddMetaNodeExecutor::execute_server()
 	*stream >> name;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
 
 	*stream >> x >> y >> z;
 
@@ -54,9 +54,9 @@ void AddMetaNodeExecutor::execute_server()
 
 	for ( int i = 0; i < count; i++ ) {
 		*stream >> id;
-		if ( nodes->contains( id ) ) {
-			currentGraph->addEdge( edgeName, *nodes->find( id ), metaNode, currentGraph->getEdgeMetaType(), true );
-			selectedNodes->append( *nodes->find( id ) );
+        if ( nodes->contains( QString::number( id ) ) ) {
+            currentGraph->addEdge( edgeName, *nodes->find( QString::number( id ) ), metaNode, currentGraph->getEdgeMetaType(), true );
+            selectedNodes->append( *nodes->find( QString::number( id ) ) );
 		}
 	}
 

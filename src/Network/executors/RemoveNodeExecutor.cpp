@@ -12,15 +12,15 @@ void RemoveNodeExecutor::execute_client()
 	*stream >> id;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	if ( nodes->contains( id ) ) {
-		Data::Node* node = *nodes->find( id );
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    if ( nodes->contains( QString::number( id ) ) ) {
+        Data::Node* node = *nodes->find( QString::number( id ) );
 		currentGraph->removeNode( node );
 	}
 	else {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getMetaNodes();
-		if ( nodes->contains( id ) ) {
-			Data::Node* node = *nodes->find( id );
+        QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getMetaNodes();
+        if ( nodes->contains( QString::number( id ) ) ) {
+            Data::Node* node = *nodes->find( QString::number( id ) );
 			currentGraph->removeNode( node );
 		}
 		else {
@@ -38,15 +38,15 @@ void RemoveNodeExecutor::execute_server()
 	*stream >> id;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	if ( nodes->contains( id ) ) {
-		Data::Node* node = *nodes->find( id );
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    if ( nodes->contains( QString::number( id ) ) ) {
+        Data::Node* node = *nodes->find( QString::number( id ) );
 		currentGraph->removeNode( node );
 	}
 	else {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getMetaNodes();
-		if ( nodes->contains( id ) ) {
-			Data::Node* node = *nodes->find( id );
+        QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getMetaNodes();
+        if ( nodes->contains( QString::number( id ) ) ) {
+            Data::Node* node = *nodes->find( QString::number( id ) );
 			currentGraph->removeNode( node );
 		}
 		else {

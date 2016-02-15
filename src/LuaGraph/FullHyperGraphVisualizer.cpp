@@ -33,8 +33,8 @@ void Lua::FullHyperGraphVisualizer::visualize()
 
 		setNodeParams( incNode, i.value(), osg::Vec4f( 0,0,1,1 ), 8 );
 
-		osg::ref_ptr<Data::Node> srcNode = currentGraph->getNodes()->value( i.value()->getEdgeNodePair().first );
-		osg::ref_ptr<Data::Node> dstNode = currentGraph->getNodes()->value( i.value()->getEdgeNodePair().second );
+        osg::ref_ptr<Data::Node> srcNode = currentGraph->getNodes()->value( QString::number( i.value()->getEdgeNodePair().first ) );
+        osg::ref_ptr<Data::Node> dstNode = currentGraph->getNodes()->value( QString::number( i.value()->getEdgeNodePair().second ) );
 
 		if ( i.value()->getOriented() ) {
 			if ( i.value()->getOutGoing() ) {

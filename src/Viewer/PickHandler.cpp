@@ -696,7 +696,7 @@ bool PickHandler::doClusterPick( osg::NodePath nodePath )
 	nodePath[nodePath.size() - 1]->getUserValue( "id", clusterIdStr );
 	qlonglong clusterId = QString::fromStdString( clusterIdStr ).toLongLong();
 
-	osg::ref_ptr<Data::Cluster> cluster = Clustering::Clusterer::getInstance().getClusters().value( clusterId );
+    osg::ref_ptr<Data::Cluster> cluster = Clustering::Clusterer::getInstance().getClusters().value( QString::number( clusterId ) );
 
 	if ( cluster != NULL ) {
 		if ( pickMode == PickMode::SINGLE ) {
@@ -724,7 +724,7 @@ void PickHandler::selectAllNeighbors( QLinkedList<osg::ref_ptr<Data::Node > > no
 	if ( nodes.count() > 0 && !isNeighborsSelection ) {
 		QLinkedList<osg::ref_ptr<Data::Node> >::const_iterator i = nodes.constBegin();
 		while ( i != nodes.constEnd() ) {
-			QMap< qlonglong,osg::ref_ptr<Data::Edge> >::const_iterator iedge = ( *i )->getEdges()->constBegin();
+            QMap< QString,osg::ref_ptr<Data::Edge> >::const_iterator iedge = ( *i )->getEdges()->constBegin();
 
 			while ( iedge != ( *i )->getEdges()->constEnd() ) {
 				( *iedge )->setEdgeColor( osg::Vec4( 1, 1, 0, 1 ) );

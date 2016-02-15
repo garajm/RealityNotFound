@@ -9,11 +9,11 @@
 
 namespace Vwr {
 
-NodeGroup::NodeGroup( QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes )
+NodeGroup::NodeGroup( QMap<QString, osg::ref_ptr<Data::Node> >* nodes )
 {
 	this->nodes = nodes;
 	this->appConf = Util::ApplicationConfig::get();
-	this->nodeTransforms = new QMap<qlonglong, osg::ref_ptr<osg::AutoTransform> >;
+    this->nodeTransforms = new QMap<QString, osg::ref_ptr<osg::AutoTransform> >;
 
 	initNodes();
 }
@@ -50,7 +50,7 @@ void NodeGroup::initNodes()
 
 	float graphScale = appConf->getValue( "Viewer.Display.NodeDistanceScale" ).toFloat();
 
-	QMapIterator<qlonglong, osg::ref_ptr<Data::Node> > i( *nodes );
+    QMapIterator<QString, osg::ref_ptr<Data::Node> > i( *nodes );
 
 	while ( i.hasNext() ) {
 		i.next();
@@ -73,7 +73,7 @@ osg::ref_ptr<osg::Group> NodeGroup::getNodeGroup( osg::ref_ptr<Data::Node> node,
 {
 	osg::ref_ptr<osg::Group> group = NULL;
 
-	if ( !nodeTransforms->contains( node->getId() ) ) {
+    if ( !nodeTransforms->contains( node->getLuaIdentifier() ) ) {
 		group = new osg::Group;
 
 		group->addChild( wrapChild( node, graphScale ) );
@@ -102,7 +102,7 @@ osg::ref_ptr<osg::Group> NodeGroup::getNodeGroup( osg::ref_ptr<Data::Node> node,
 			group->addChild( at );
 		}
 
-		QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator i = node->getEdges()->begin();
+        QMap<QString, osg::ref_ptr<Data::Edge> >::iterator i = node->getEdges()->begin();
 
 		while ( i != node->getEdges()->end() ) {
 			if ( *i != parentEdge ) {
@@ -137,7 +137,7 @@ osg::ref_ptr<osg::AutoTransform> NodeGroup::wrapChild( osg::ref_ptr<Data::Node> 
 	at->setAutoRotateMode( osg::AutoTransform::ROTATE_TO_SCREEN );
 	at->addChild( node );
 
-	nodeTransforms->insert( node->getId(), at );
+    nodeTransforms->insert( node->getLuaIdentifier() , at );
 
 	return at;
 }
@@ -146,12 +146,12 @@ void NodeGroup::synchronizeNodes()
 {
 	//navyse
 
-	QList<qlonglong> nodeKeys = nodes->keys();
+    QList<QString> nodeKeys = nodes->keys();
 
-	QList<qlonglong> nodeTransformsKeys = nodeTransforms->keys();
-	QSet<qlonglong> result = nodeTransformsKeys.toSet().subtract( nodeKeys.toSet() );
+    QList<QString> nodeTransformsKeys = nodeTransforms->keys();
+    QSet<QString> result = nodeTransformsKeys.toSet().subtract( nodeKeys.toSet() );
 
-	QSet<qlonglong>::const_iterator i = result.constBegin();
+    QSet<QString>::const_iterator i = result.constBegin();
 
 	while ( i != result.constEnd() ) {
 
@@ -174,7 +174,7 @@ void NodeGroup::synchronizeNodes()
 
 void NodeGroup::updateNodeCoordinates( float interpolationSpeed )
 {
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator i = nodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator i = nodes->constBegin();
 
 	while ( i != nodes->constEnd() ) {
 
@@ -199,7 +199,7 @@ void NodeGroup::freezeNodePositions()
 {
 	float graphScale = appConf->getValue( "Viewer.Display.NodeDistanceScale" ).toFloat();
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator i = nodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator i = nodes->constBegin();
 
 	while ( i != nodes->constEnd() ) {
 		( *i )->setTargetPosition( ( *i )->getCurrentPosition() / graphScale );

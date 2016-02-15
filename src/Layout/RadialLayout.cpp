@@ -66,7 +66,7 @@ void RadialLayout::changeCenterNode( osg::ref_ptr<Data::Node> centerNode )
 
 void RadialLayout::update()
 {
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* allNodes = mCurrentGraph->getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* allNodes = mCurrentGraph->getNodes();
 
 	//return, when inputs are incorrect
 	if ( mSelectedNodes.empty() ) {
@@ -92,8 +92,8 @@ void RadialLayout::update()
 	osg::ref_ptr<Data::Node> node;
 	QList<qlonglong> groups;
 	QList<qlonglong>::iterator groupIt;
-	QList<qlonglong> nodes;
-	QList<qlonglong>::iterator nodeIt;
+    QList<QString> nodes;
+    QList<QString>::iterator nodeIt;
 
 	mCenterNode->setFixed( true );   //don't move with radial layout
 

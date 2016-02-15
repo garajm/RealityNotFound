@@ -57,10 +57,10 @@ void SelectLayoutWindow::createLayoutTable()
 	bool error = false;
 	qlonglong layoutsCount, row;
 	QString name;
-	QMap<qlonglong, QString>::iterator iterLayout;
-	qlonglong layoutID;
+    QMap<QString, QString>::iterator iterLayout;
+    QString layoutID;
 
-	QMap<qlonglong, QString> layouts = Model::GraphLayoutDAO::getLayoutsNames( graphID, db->tmpGetConn(), &error );
+    QMap<QString, QString> layouts = Model::GraphLayoutDAO::getLayoutsNames( graphID, db->tmpGetConn(), &error );
 	layoutsCount = layouts.count();
 
 	numberOfLayouts->setText( tr( "%1 layout(s) found" ).arg( layoutsCount ) );

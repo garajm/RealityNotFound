@@ -53,11 +53,18 @@ Data::Edge::~Edge( void )
 	this->appConf = NULL;
 }
 
-void Data::Edge::linkNodes( QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges )
+void Data::Edge::linkNodes( QMap<QString, osg::ref_ptr<Data::Edge> >* edges )
 {
-	edges->insert( this->id, this );
+    edges->insert( QString::number( this->id ), this );
 	this->dstNode->addEdge( this );
 	this->srcNode->addEdge( this );
+}
+
+void Data::Edge::linkLuaNodes( QMap<QString, osg::ref_ptr<Data::Edge> >* edges )
+{
+    edges->insert( this->getLuaIdentifier(), this );
+    this->dstNode->addEdge( this );
+    this->srcNode->addEdge( this );
 }
 
 void Data::Edge::unlinkNodes()

@@ -120,7 +120,7 @@ public:
 	    *  \brief Returns all Edges connected to the Node
 	    *  \return QMap<qlonglong,osg::ref_ptr<Data::Edge> > * Edges connected to the Node
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* getEdges() const
+    QMap<QString, osg::ref_ptr<Data::Edge> >* getEdges() const
 	{
 		return edges;
 	}
@@ -130,7 +130,7 @@ public:
 	    *  \brief Sets (overrides) new Edges which are connected to the Node
 	    *  \param   val   new Edges
 	    */
-	void setEdges( QMap<qlonglong, osg::ref_ptr<Data::Edge> >* val )
+    void setEdges( QMap<QString, osg::ref_ptr<Data::Edge> >* val )
 	{
 		edges = val;
 	}
@@ -275,7 +275,7 @@ private:
 	    *  QMap<qlonglong, osg::ref_ptr<Data::Edge> > * edges
 	    *  \brief Edges connected to the Node
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges;
+    QMap<QString, osg::ref_ptr<Data::Edge> >* edges;
 
 	/**
 	    *  bool fixed

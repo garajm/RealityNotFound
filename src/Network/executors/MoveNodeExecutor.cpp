@@ -15,15 +15,15 @@ void MoveNodeExecutor::execute_client()
 	*stream >> id >> x >> y >> z;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
 	//qDebug() << "Moving" << id << "to" << x << y << z;
-	if ( nodes->contains( id ) ) {
-		this->moveNode( *nodes->find( id ), osg::Vec3( x,y,z ) );
+    if ( nodes->contains( QString::number( id ) ) ) {
+        this->moveNode( *nodes->find( QString::number( id ) ), osg::Vec3( x,y,z ) );
 	}
 	else {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >* mergeNodes = currentGraph->getMetaNodes();
-		if ( mergeNodes->contains( id ) ) {
-			this->moveNode( *mergeNodes->find( id ), osg::Vec3( x,y,z ) );
+        QMap<QString, osg::ref_ptr<Data::Node> >* mergeNodes = currentGraph->getMetaNodes();
+        if ( mergeNodes->contains( QString::number( id ) ) ) {
+            this->moveNode( *mergeNodes->find( QString::number( id ) ), osg::Vec3( x,y,z ) );
 		}
 		else {
 			qDebug() << "Nepoznam uzol" << id;
@@ -66,18 +66,18 @@ void MoveNodeExecutor::execute_server()
 	}
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
 	//qDebug() << "Moving" << id << "to" << x << y << z;
 
-	if ( nodes->contains( id ) ) {
-		this->moveNode( *nodes->find( id ), osg::Vec3( x,y,z ) );
+    if ( nodes->contains( QString::number( id ) ) ) {
+        this->moveNode( *nodes->find( QString::number( id ) ), osg::Vec3( x,y,z ) );
 		Layout::LayoutThread* thread = server->getLayoutThread();
 		thread->wakeUp();
 	}
 	else {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >* mergedNodes = currentGraph->getMetaNodes();
-		if ( mergedNodes->contains( id ) ) {
-			this->moveNode( *mergedNodes->find( id ), osg::Vec3( x,y,z ) );
+        QMap<QString, osg::ref_ptr<Data::Node> >* mergedNodes = currentGraph->getMetaNodes();
+        if ( mergedNodes->contains( QString::number( id ) ) ) {
+            this->moveNode( *mergedNodes->find( QString::number( id ) ), osg::Vec3( x,y,z ) );
 			Layout::LayoutThread* thread = server->getLayoutThread();
 			thread->wakeUp();
 		}

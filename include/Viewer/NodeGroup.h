@@ -36,7 +36,7 @@ public:
 		*  \brief Creates node group
 		*  \param  nodes    nodes to wrap
 		*/
-	NodeGroup( QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes );
+    NodeGroup( QMap<QString, osg::ref_ptr<Data::Node> >* nodes );
 
 	/**
 		*  \fn public destructor  ~NodeGroup
@@ -70,7 +70,7 @@ public:
 		*  \brief returns all nodes transformations
 		*  \return QMap<qlonglong,osg::ref_ptr<osg::AutoTransform> > * node transforms
 		*/
-	QMap<qlonglong, osg::ref_ptr<osg::AutoTransform> >* getNodeTransforms()
+    QMap<QString, osg::ref_ptr<osg::AutoTransform> >* getNodeTransforms()
 	{
 		return nodeTransforms;
 	}
@@ -92,13 +92,13 @@ private:
 		*  QMap<qlonglong,osg::ref_ptr<Data::Node> > * nodes
 		*  \brief wrapped nodes
 		*/
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes;
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes;
 
 	/**
 		*  QMap<qlonglong,osg::ref_ptr<osg::AutoTransform> > * nodeTransforms
 		*  \brief node transforms
 		*/
-	QMap<qlonglong, osg::ref_ptr<osg::AutoTransform> >* nodeTransforms;
+    QMap<QString, osg::ref_ptr<osg::AutoTransform> >* nodeTransforms;
 
 	/**
 		*  osg::ref_ptr group

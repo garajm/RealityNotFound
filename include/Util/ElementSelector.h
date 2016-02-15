@@ -18,8 +18,8 @@ namespace Util {
 class ElementSelector
 {
 public:
-	static void randomElementSelector( QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges, int num, Vwr::PickHandler* pickhandler );
-	static void weightedElementSelector( QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes, int num, Vwr::PickHandler* pickhandler );
+    static void randomElementSelector( QMap<QString, osg::ref_ptr<Data::Node> >* nodes, QMap<QString, osg::ref_ptr<Data::Edge> >* edges, int num, Vwr::PickHandler* pickhandler );
+    static void weightedElementSelector( QMap<QString, osg::ref_ptr<Data::Node> >* nodes, int num, Vwr::PickHandler* pickhandler );
 };
 }
 

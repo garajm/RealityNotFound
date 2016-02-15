@@ -173,8 +173,8 @@ void Server::sendGraph( QTcpSocket* client )
 		return;
 	}
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator iNodes =  nodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator iNodes =  nodes->constBegin();
 
 	while ( iNodes != nodes->constEnd() ) {
 
@@ -183,8 +183,8 @@ void Server::sendGraph( QTcpSocket* client )
 		++iNodes;
 	}
 
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges = currentGraph -> getEdges();
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >::const_iterator iEdges =  edges->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Edge> >* edges = currentGraph -> getEdges();
+    QMap<QString, osg::ref_ptr<Data::Edge> >::const_iterator iEdges =  edges->constBegin();
 
 	while ( iEdges != edges -> constEnd() ) {
 
@@ -212,8 +212,8 @@ void Server::sendLayout( QTcpSocket* client )
 		return;
 	}
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator iNodes =  nodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator iNodes =  nodes->constBegin();
 
 
 	/*QTime t;
@@ -278,7 +278,7 @@ void Server::sendMoveNodes()
 	QDataStream out( &block,QIODevice::WriteOnly );
 	out.setFloatingPointPrecision( QDataStream::SinglePrecision );
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* mergeNodes = NULL;
+    QMap<QString, osg::ref_ptr<Data::Node> >* mergeNodes = NULL;
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
 	if ( currentGraph != NULL ) {
 		mergeNodes = currentGraph->getMetaNodes();
@@ -294,7 +294,7 @@ void Server::sendMoveNodes()
 		float y = ( *i )->getCurrentPosition().y();
 		float z = ( *i )->getCurrentPosition().z();
 
-		if ( mergeNodes != NULL && mergeNodes->contains( ( *i )->getId() ) ) {
+        if ( mergeNodes != NULL && mergeNodes->contains( QString::number( ( *i )->getId() ) ) ) {
 			x/=graphScale;
 			y/=graphScale;
 			z/=graphScale;
@@ -744,8 +744,8 @@ void Server::sendAddMetaNode( osg::ref_ptr<Data::Node> metaNode, QLinkedList<osg
 	out << ( QString ) edgeName;
 	out << ( int ) selectedNodes->count();
 
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges = metaNode->getEdges();
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >::const_iterator i = edges->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Edge> >* edges = metaNode->getEdges();
+    QMap<QString, osg::ref_ptr<Data::Edge> >::const_iterator i = edges->constBegin();
 	while ( i != edges->constEnd() ) {
 		out << ( int )( *i )->getId() << ( int )( *i )->getSrcNode()->getId();
 		++i;

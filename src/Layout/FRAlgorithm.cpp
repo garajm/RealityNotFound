@@ -113,7 +113,7 @@ double FRAlgorithm::computeCalm()
 /* Rozmiestni uzly na nahodne pozicie */
 void FRAlgorithm::Randomize()
 {
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator j;
+    QMap<QString, osg::ref_ptr<Data::Node> >::iterator j;
 	j = graph->getNodes()->begin();
 
 	for ( int i = 0; i < graph->getNodes()->count(); ++i,++j ) {
@@ -203,7 +203,7 @@ bool FRAlgorithm::iterate()
 {
 	bool changed = false;
 	{
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator j;
+        QMap<QString, osg::ref_ptr<Data::Node> >::iterator j;
 		j = graph->getNodes()->begin();
 		for ( int i = 0; i < graph->getNodes()->count(); ++i,++j ) {
 			// pre vsetky uzly..
@@ -214,8 +214,8 @@ bool FRAlgorithm::iterate()
 	{
 		//meta uzly
 
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator j;
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator k;
+        QMap<QString, osg::ref_ptr<Data::Node> >::iterator j;
+        QMap<QString, osg::ref_ptr<Data::Node> >::iterator k;
 		j = graph->getMetaNodes()->begin();
 		for ( int i = 0; i < graph->getMetaNodes()->count(); ++i,++j ) {
 			// pre vsetky metauzly..
@@ -226,7 +226,7 @@ bool FRAlgorithm::iterate()
 					continue;
 				}
 				//pritazlive sily medzi meta uzlom a jeho susedmi
-				QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator iEdge = j.value()->getEdges()->begin();
+                QMap<QString, osg::ref_ptr<Data::Edge> >::iterator iEdge = j.value()->getEdges()->begin();
 				while ( iEdge != j.value()->getEdges()->end() ) {
 					if ( !j.value()->equals( ( *iEdge )->getSrcNode() ) ) {
 						addNeighbourAttractive( j.value(), ( *iEdge )->getSrcNode(), 1 );
@@ -277,7 +277,7 @@ bool FRAlgorithm::iterate()
 	{
 		//meta hrany
 
-		QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator j;
+        QMap<QString, osg::ref_ptr<Data::Edge> >::iterator j;
 		j = graph->getMetaEdges()->begin();
 		for ( int i = 0; i < graph->getMetaEdges()->count(); ++i,++j ) {
 			// pre vsetky metahrany..
@@ -290,11 +290,11 @@ bool FRAlgorithm::iterate()
 			v->setIgnored(false);
 			*/
 			// [GrafIT]
-			if ( graph->getMetaNodes()->contains( u->getId() ) ) {
+            if ( graph->getMetaNodes()->contains( QString::number( u->getId() ) ) ) {
 				// pritazliva sila, posobi na v
 				addMetaAttractive( v, u, Data::Graph::getMetaStrength() );
 			}
-			if ( graph->getMetaNodes()->contains( v->getId() ) ) {
+            if ( graph->getMetaNodes()->contains( QString::number( v->getId() ) ) ) {
 				// pritazliva sila, posobi na u
 				addMetaAttractive( u, v, Data::Graph::getMetaStrength() );
 			}
@@ -302,8 +302,8 @@ bool FRAlgorithm::iterate()
 	}
 	{
 		//uzly
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator j;
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator k;
+        QMap<QString, osg::ref_ptr<Data::Node> >::iterator j;
+        QMap<QString, osg::ref_ptr<Data::Node> >::iterator k;
 		j = graph->getNodes()->begin();
 		for ( int i = 0; i < graph->getNodes()->count(); ++i,++j ) {
 			// pre vsetky uzly..
@@ -318,7 +318,7 @@ bool FRAlgorithm::iterate()
 	}
 	{
 		//hrany
-		QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator j;
+        QMap<QString, osg::ref_ptr<Data::Edge> >::iterator j;
 		j = graph->getEdges()->begin();
 		for ( int i = 0; i < graph->getEdges()->count(); ++i,++j ) {
 			// pre vsetky hrany..
@@ -335,7 +335,7 @@ bool FRAlgorithm::iterate()
 		float minimalDistanceFromFocus = FLT_MAX;
 		Data::Node* focusedNode = 0;
 
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator j;
+        QMap<QString, osg::ref_ptr<Data::Node> >::iterator j;
 		j = graph->getNodes()->begin();
 		for ( int i = 0; i < graph->getNodes()->count(); ++i,++j ) {
 			float distanceFromFocus = graph->getRestrictionsManager().distanceFromFocus( *j.value() );
@@ -363,7 +363,7 @@ bool FRAlgorithm::iterate()
 
 	// aplikuj sily na uzly
 	{
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator j;
+        QMap<QString, osg::ref_ptr<Data::Node> >::iterator j;
 		j = graph->getNodes()->begin();
 		for ( int i = 0; i < graph->getNodes()->count(); ++i,++j ) {
 			// pre vsetky uzly..
@@ -379,7 +379,7 @@ bool FRAlgorithm::iterate()
 	}
 	// aplikuj sily na metauzly
 	{
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator j;
+        QMap<QString, osg::ref_ptr<Data::Node> >::iterator j;
 		j = graph->getMetaNodes()->begin();
 		for ( int i = 0; i < graph->getMetaNodes()->count(); ++i,++j ) {
 			// pre vsetky metauzly..
@@ -397,7 +397,7 @@ bool FRAlgorithm::iterate()
 bool FRAlgorithm::applyForces( Data::Node* node )
 {
 
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator edgeIt;
+    QMap<QString, osg::ref_ptr<Data::Edge> >::iterator edgeIt;
 	for ( edgeIt=node->getEdges()->begin(); edgeIt!=node->getEdges()->end(); ++edgeIt ) {
 		if ( ( *edgeIt )->isShared_X() || ( *edgeIt )->isShared_Y() || ( *edgeIt )->isShared_Z() ) {
 			osg::ref_ptr<Data::Node> secondNode = ( *edgeIt )->getSecondNode( node );

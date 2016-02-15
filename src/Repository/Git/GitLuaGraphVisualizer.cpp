@@ -40,7 +40,7 @@ void Repository::Git::GitLuaGraphVisualizer::visualize( bool next ) {
 
     if( !root ) {
         qDebug() << "Vytvaram root uzol v grafe";
-        root = this->currentGraph->addNode( luaRoot->getId(), this->evolutionGraph->getFilePath(), currentGraph->getTypesByName( "node" ).at( 0 ) );
+        root = this->currentGraph->addLuaNode( luaRoot->getId(), this->evolutionGraph->getFilePath(), rootIdentifier, currentGraph->getTypesByName( "node" ).at( 0 ) );
         root->setLuaIdentifier( rootIdentifier );
     }
 
@@ -103,7 +103,7 @@ bool Repository::Git::GitLuaGraphVisualizer::addFileToGraph( Repository::Git::Gi
         osg::ref_ptr<Data::Node> newNode = this->currentGraph->findNodeByLuaIdentifier( newIdentifier );
         if( !newNode ) {
 //            qDebug() << "ADDING node to Graph" << newIdentifier;
-            newNode = this->currentGraph->addNode( luaNode->getId(), luaNode->getLabel(), this->currentGraph->getTypesByName( "node" ).at( 0 ) );
+            newNode = this->currentGraph->addLuaNode( luaNode->getId(), luaNode->getLabel(), newIdentifier, this->currentGraph->getTypesByName( "node" ).at( 0 ) );
             newNode->setLuaIdentifier( newIdentifier );    
         } else {
             newNode->setType( this->currentGraph->getTypesByName( "node" ).at( 0 ) );
@@ -119,8 +119,8 @@ bool Repository::Git::GitLuaGraphVisualizer::addFileToGraph( Repository::Git::Gi
         osg::ref_ptr<Data::Edge> newEdge = this->currentGraph->findEdgeByLuaIdentifier( edgeIdentifier );
         if( !newEdge ) {
 //            qDebug() << "ADDING edge to Graph" << edgeIdentifier;
-            newEdge = this->currentGraph->addEdge( luaEdge->getId(), luaEdge->getLabel(), node, newNode, this->currentGraph->getTypesByName( "edge" ).at( 0 ), false );
-            newEdge->setLuaIdentifier( edgeIdentifier );
+            newEdge = this->currentGraph->addLuaEdge( luaEdge->getId(), luaEdge->getLabel(), edgeIdentifier, node, newNode, this->currentGraph->getTypesByName( "edge" ).at( 0 ), false );
+//            newEdge->setLuaIdentifier( edgeIdentifier );
             newEdge->setCamera( this->camera );
         }
         this->evolutionGraph->addLuaEdgesMapping( edgeIdentifier, luaEdge->getId() );
@@ -216,7 +216,7 @@ bool Repository::Git::GitLuaGraphVisualizer::addFunctionToGraph( Repository::Git
         if( !luaNode ) {
             qDebug() << "id" << function->getId() << function->getIdentifier() << function->getTypeAsString() << function->getFunctionTypeAsString();
         }
-        node =  this->currentGraph->addNode( luaNode->getId(), luaNode->getLabel(), this->currentGraph->getTypesByName( "node" ).at( 0 ) );
+        node =  this->currentGraph->addLuaNode( luaNode->getId(), luaNode->getLabel(), luaNode->getIdentifier(), this->currentGraph->getTypesByName( "node" ).at( 0 ) );
         node->setLuaIdentifier( luaNode->getIdentifier() );
     } else {
         node->setType( this->currentGraph->getTypesByName( "node" ).at( 0 ) );
@@ -234,14 +234,14 @@ bool Repository::Git::GitLuaGraphVisualizer::addFunctionToGraph( Repository::Git
         Lua::LuaIncidence* incidence = this->luaGraph->getIncidences()->value( luaEdge->getIncidences().at( 0 ) );
         if( incidence->getOriented() ) {
             if( incidence->getOutGoing() ) {
-                edge = this->currentGraph->addEdge( luaEdge->getId(), luaEdge->getLabel(), node, masterNode, this->currentGraph->getTypesByName( "edge" ).at( 0 ), true );
+                edge = this->currentGraph->addLuaEdge( luaEdge->getId(), luaEdge->getLabel(), edgeIdentifier, node, masterNode, this->currentGraph->getTypesByName( "edge" ).at( 0 ), true );
             } else {
-                edge = this->currentGraph->addEdge( luaEdge->getId(), luaEdge->getLabel(), masterNode, node, this->currentGraph->getTypesByName( "edge" ).at( 0 ), true );
+                edge = this->currentGraph->addLuaEdge( luaEdge->getId(), luaEdge->getLabel(), edgeIdentifier, masterNode, node, this->currentGraph->getTypesByName( "edge" ).at( 0 ), true );
             }
         } else {
-            edge = this->currentGraph->addEdge( luaEdge->getId(), luaEdge->getLabel(), masterNode, node, this->currentGraph->getTypesByName( "edge" ).at( 0 ), false );
+            edge = this->currentGraph->addLuaEdge( luaEdge->getId(), luaEdge->getLabel(), edgeIdentifier, masterNode, node, this->currentGraph->getTypesByName( "edge" ).at( 0 ), false );
         }
-        edge->setLuaIdentifier( edgeIdentifier );
+//        edge->setLuaIdentifier( edgeIdentifier );
         edge->setCamera( this->camera );
     } else {
         this->evolutionGraph->removeRemovedNodeOrEdge( edgeIdentifier );
@@ -271,7 +271,7 @@ bool Repository::Git::GitLuaGraphVisualizer::addModuleFromGlobalFunction( Reposi
     Lua::LuaNode* luaModuleNode = this->luaGraph->findNodeByLuaIdentifier( moduleIdentifier );
     osg::ref_ptr<Data::Node> moduleNode = this->currentGraph->findNodeByLuaIdentifier( moduleIdentifier );
     if( !moduleNode ) {
-        moduleNode = this->currentGraph->addNode( luaModuleNode->getId(), luaModuleNode->getLabel(), this->currentGraph->getTypesByName( "node" ).at( 0 ) );
+        moduleNode = this->currentGraph->addLuaNode( luaModuleNode->getId(), luaModuleNode->getLabel(), luaModuleNode->getIdentifier(),  this->currentGraph->getTypesByName( "node" ).at( 0 ) );
         moduleNode->setLuaIdentifier( luaModuleNode->getIdentifier() );
     } else {
         moduleNode->setType( this->currentGraph->getTypesByName( "node" ).at( 0 ) );
@@ -286,8 +286,8 @@ bool Repository::Git::GitLuaGraphVisualizer::addModuleFromGlobalFunction( Reposi
     Lua::LuaEdge* luaEdge = this->luaGraph->findEdgeByLuaIdentifier( edgeIdentifier );
     osg::ref_ptr<Data::Edge> edge = this->currentGraph->findEdgeByLuaIdentifier( edgeIdentifier );
     if( !edge ) {
-        edge = this->currentGraph->addEdge( luaEdge->getId(), luaEdge->getLabel(), functionNode, moduleNode, this->currentGraph->getTypesByName( "edge" ).at( 0 ), false );
-        edge->setLuaIdentifier( edgeIdentifier );
+        edge = this->currentGraph->addLuaEdge( luaEdge->getId(), luaEdge->getLabel(), edgeIdentifier, functionNode, moduleNode, this->currentGraph->getTypesByName( "edge" ).at( 0 ), false );
+//        edge->setLuaIdentifier( edgeIdentifier );
         edge->setCamera( this->camera );
     } else {
         this->evolutionGraph->removeRemovedNodeOrEdge( edgeIdentifier );
@@ -428,7 +428,7 @@ void Repository::Git::GitLuaGraphVisualizer::processRemovedNodesAndEdges() {
 
 void Repository::Git::GitLuaGraphVisualizer::updateCurrentGraphNodesId() {
 //    qDebug() << "UPDATE current graph Nodes";
-    for( QMap<qlonglong, osg::ref_ptr<Data::Node>>::iterator iterator = this->currentGraph->getNodes()->begin(); iterator != this->currentGraph->getNodes()->end(); ++iterator ) {
+    for( QMap<QString, osg::ref_ptr<Data::Node>>::iterator iterator = this->currentGraph->getNodes()->begin(); iterator != this->currentGraph->getNodes()->end(); ++iterator ) {
 //        qDebug() << "UPDATING Node" << iterator.value()->getLuaIdentifier();
         Lua::LuaNode* node = this->luaGraph->findNodeByLuaIdentifier( iterator.value()->getLuaIdentifier() );
         if( node ) {

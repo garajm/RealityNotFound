@@ -269,9 +269,9 @@ void TreeModel::addNodesToList( QList<TreeItem*>* parents )
 
 	//nacita sa zoznam typov uzlov
 	Manager::GraphManager* manager = Manager::GraphManager::getInstance();
-	QMap<qlonglong, Data::Type*>* nodes = manager->getActiveGraph()->getTypes();
+    QMap<QString, Data::Type*>* nodes = manager->getActiveGraph()->getTypes();
 
-	QMap<qlonglong, Data::Type*>::iterator iterator;
+    QMap<QString, Data::Type*>::iterator iterator;
 
 	//typy uzlyovsa postupne prechadzaju
 	for ( iterator = nodes->begin(); iterator != nodes->end(); ++iterator ) {

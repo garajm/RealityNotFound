@@ -52,7 +52,7 @@ public:
 	*   \param       groupId   id of group of siblings
 	*  \return  list of node IDs
 	*/
-	QList<qlonglong> getNodesInGroup( qlonglong groupId );
+    QList<QString> getNodesInGroup( qlonglong groupId );
 
 	/**
 	*  \fn public  getRandomNodeInGroup(qlonglong groupId)
@@ -60,14 +60,14 @@ public:
 	*   \param       groupId   id of group of siblings
 	*  \return  node ID
 	*/
-	qlonglong getRandomNodeInGroup( qlonglong groupId );
+    QString getRandomNodeInGroup( qlonglong groupId );
 
 private:
 	/**
 	*  QMap<qlonglong,qlonglong> nodeToGroup
 	*  \brief QMap<nodeId, groupId> join id of node and id of group of graph siblings
 	*/
-	QMap<qlonglong, qlonglong> nodeToGroup;
+    QMap<QString, qlonglong> nodeToGroup;
 
 	/**
 	*  QMap<qlonglong,qlonglong> groupToDepth

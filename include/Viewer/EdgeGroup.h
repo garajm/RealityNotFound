@@ -29,7 +29,7 @@ public:
 		*  \brief Creates edge group
 		*  \param edges	 edges to wrap
 		*/
-	EdgeGroup( QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges );
+    EdgeGroup( QMap<QString, osg::ref_ptr<Data::Edge> >* edges );
 
 	/**
 		*  \fn public destructor  ~EdgeGroup
@@ -67,7 +67,7 @@ private:
 		*  QMap<qlonglong,osg::ref_ptr<Data::Edge> > * edges
 		*  \brief Wrpped edges
 		*/
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges;
+    QMap<QString, osg::ref_ptr<Data::Edge> >* edges;
 
 
 	/**

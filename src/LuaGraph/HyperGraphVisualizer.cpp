@@ -29,8 +29,8 @@ void Lua::HyperGraphVisualizer::visualize()
 	}
 
 	for ( QMap<qlonglong, Lua::LuaIncidence*>::iterator i = g->getIncidences()->begin(); i != g->getIncidences()->end(); ++i ) {
-		osg::ref_ptr<Data::Node> srcNode = currentGraph->getNodes()->value( i.value()->getEdgeNodePair().first );
-		osg::ref_ptr<Data::Node> dstNode = currentGraph->getNodes()->value( i.value()->getEdgeNodePair().second );
+        osg::ref_ptr<Data::Node> srcNode = currentGraph->getNodes()->value( QString::number( i.value()->getEdgeNodePair().first ) );
+        osg::ref_ptr<Data::Node> dstNode = currentGraph->getNodes()->value( QString::number( i.value()->getEdgeNodePair().second ) );
 		if ( i.value()->getOriented() ) {
 			if ( i.value()->getOutGoing() ) {
 				currentGraph->addEdge( i.key(), i.value()->getLabel(), srcNode, dstNode, edgeType, true );
@@ -52,12 +52,12 @@ void Lua::HyperGraphVisualizer::onUpdate()
 	Lua::LuaGraph* g = Lua::LuaGraph::loadGraph();
 
 	for ( QMap<qlonglong, Lua::LuaNode*>::iterator i = g->getNodes()->begin(); i != g->getNodes()->end(); ++i ) {
-		osg::ref_ptr<Data::Node> n = currentGraph->getNodes()->value( i.key() );
+        osg::ref_ptr<Data::Node> n = currentGraph->getNodes()->value( QString::number( i.key() ) );
 		setNodeParams( n, i.value(), osg::Vec4f( 1,1,1,1 ), 8 );
 	}
 
 	for ( QMap<qlonglong, Lua::LuaEdge*>::iterator i = g->getEdges()->begin(); i != g->getEdges()->end(); ++i ) {
-		osg::ref_ptr<Data::Node> n = currentGraph->getNodes()->value( i.key() );
+        osg::ref_ptr<Data::Node> n = currentGraph->getNodes()->value( QString::number( i.key() ) );
 		setNodeParams( n, i.value(), osg::Vec4f( 1,1,1,1 ), 8 );
 	}
 }

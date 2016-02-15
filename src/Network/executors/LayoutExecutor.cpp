@@ -24,10 +24,10 @@ void LayoutExecutor::execute_client()
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
 	if ( currentGraph != NULL ) {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+        QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
 		if ( nodes != NULL ) {
-			if ( nodes->contains( id ) ) {
-				osg::ref_ptr<Data::Node> node = *nodes->find( id );
+            if ( nodes->contains( QString::number( id ) ) ) {
+                osg::ref_ptr<Data::Node> node = *nodes->find( QString::number( id ) );
 				if ( !client->selected_nodes.contains( node ) ) {
 					node->setTargetPosition( osg::Vec3( x,y,z ) );
 					//qDebug()<< "[NEW NODE POS] id: " << id << " [" << x << "," << y << "," << z << "]";

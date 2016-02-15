@@ -72,7 +72,9 @@ public:
 	    * \brief  Links the Edge to it's Nodes and adds itself to the edges
 	    * \param  edges
 	    */
-	void linkNodes( QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges );
+    void linkNodes( QMap<QString, osg::ref_ptr<Data::Edge> >* edges );
+
+    void linkLuaNodes( QMap<QString, osg::ref_ptr<Data::Edge> >* edges );
 
 	/**
 	    * \fn public unlinkNodes

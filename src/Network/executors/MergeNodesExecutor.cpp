@@ -13,14 +13,14 @@ void MergeNodesExecutor::execute_client()
 	*stream >>count;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
 
 	QLinkedList<osg::ref_ptr<Data::Node> >* selectedNodes = new QLinkedList<osg::ref_ptr<Data::Node> >();
 
 	for ( int i = 0; i < count; i++ ) {
 		*stream >> id;
-		if ( nodes->contains( id ) ) {
-			selectedNodes->append( *nodes->find( id ) );
+        if ( nodes->contains( QString::number( id ) ) ) {
+            selectedNodes->append( *nodes->find( QString::number( id ) ) );
 		}
 	}
 
@@ -42,14 +42,14 @@ void MergeNodesExecutor::execute_server()
 	*stream >>count;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
 
 	QLinkedList<osg::ref_ptr<Data::Node> >* selectedNodes = new QLinkedList<osg::ref_ptr<Data::Node> >();
 
 	for ( int i = 0; i < count; i++ ) {
 		*stream >> id;
-		if ( nodes->contains( id ) ) {
-			selectedNodes->append( *nodes->find( id ) );
+        if ( nodes->contains( QString::number( id ) ) ) {
+            selectedNodes->append( *nodes->find( QString::number( id ) ) );
 		}
 	}
 

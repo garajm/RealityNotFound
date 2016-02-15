@@ -20,7 +20,7 @@ Model::EdgeDAO::~EdgeDAO( void )
 {
 }
 
-bool Model::EdgeDAO::addEdgesToDB( QSqlDatabase* conn, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges )
+bool Model::EdgeDAO::addEdgesToDB( QSqlDatabase* conn, QMap<QString, osg::ref_ptr<Data::Edge> >* edges )
 {
 	//overime ci mame pripojenie
 	if ( conn==NULL || !conn->isOpen() ) {
@@ -28,7 +28,7 @@ bool Model::EdgeDAO::addEdgesToDB( QSqlDatabase* conn, QMap<qlonglong, osg::ref_
 		return false;
 	}
 
-	QMap< qlonglong,osg::ref_ptr<Data::Edge> >::const_iterator iEdges =	edges->constBegin();
+    QMap< QString,osg::ref_ptr<Data::Edge> >::const_iterator iEdges =	edges->constBegin();
 
 	QSqlQuery* query = new QSqlQuery( *conn );
 
@@ -62,7 +62,7 @@ bool Model::EdgeDAO::addEdgesToDB( QSqlDatabase* conn, QMap<qlonglong, osg::ref_
 	return true;
 }
 
-bool Model::EdgeDAO::addMetaEdgesToDB( QSqlDatabase* conn, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges, Data::GraphLayout* layout, QMap<qlonglong, qlonglong> newMetaNodeID, QMap<qlonglong, qlonglong> newMetaEdgeID )
+bool Model::EdgeDAO::addMetaEdgesToDB( QSqlDatabase* conn, QMap<QString, osg::ref_ptr<Data::Edge> >* edges, Data::GraphLayout* layout, QMap<QString, qlonglong> newMetaNodeID, QMap<QString, qlonglong> newMetaEdgeID )
 {
 	//check if we have connection
 	if ( conn==NULL || !conn->isOpen() ) {
@@ -70,33 +70,33 @@ bool Model::EdgeDAO::addMetaEdgesToDB( QSqlDatabase* conn, QMap<qlonglong, osg::
 		return false;
 	}
 
-	QMap< qlonglong,osg::ref_ptr<Data::Edge> >::const_iterator iEdges =	edges->constBegin();
+    QMap< QString,osg::ref_ptr<Data::Edge> >::const_iterator iEdges =	edges->constBegin();
 
 	QSqlQuery* query = new QSqlQuery( *conn );
 	qlonglong nodeID1, nodeID2, edgeID;
-	QMap<qlonglong, qlonglong>::iterator nodeIdIter;
-	QMap<qlonglong, qlonglong>::iterator edgeIdIter;
+    QMap<QString, qlonglong>::iterator nodeIdIter;
+    QMap<QString, qlonglong>::iterator edgeIdIter;
 
 	//pridavame meta-uzly do query DB
 	while ( iEdges != edges->constEnd() ) {
-		if ( newMetaNodeID.contains( iEdges.value()->getSrcNode()->getId() ) ) {
-			nodeIdIter = newMetaNodeID.find( iEdges.value()->getSrcNode()->getId() );
+        if ( newMetaNodeID.contains( QString::number( iEdges.value()->getSrcNode()->getId() ) ) ) {
+            nodeIdIter = newMetaNodeID.find( QString::number( iEdges.value()->getSrcNode()->getId() ) );
 			nodeID1 = nodeIdIter.value();
 		}
 		else {
 			nodeID1 = iEdges.value()->getSrcNode()->getId();
 		}
 
-		if ( newMetaNodeID.contains( iEdges.value()->getDstNode()->getId() ) ) {
-			nodeIdIter = newMetaNodeID.find( iEdges.value()->getDstNode()->getId() );
+        if ( newMetaNodeID.contains( QString::number( iEdges.value()->getDstNode()->getId() ) ) ) {
+            nodeIdIter = newMetaNodeID.find( QString::number( iEdges.value()->getDstNode()->getId() ) );
 			nodeID2 = nodeIdIter.value();
 		}
 		else {
 			nodeID2 = iEdges.value()->getDstNode()->getId();
 		}
 
-		if ( newMetaEdgeID.contains( iEdges.value()->getId() ) ) {
-			edgeIdIter = newMetaEdgeID.find( iEdges.value()->getId() );
+        if ( newMetaEdgeID.contains( QString::number( iEdges.value()->getId() ) ) ) {
+            edgeIdIter = newMetaEdgeID.find( QString::number( iEdges.value()->getId() ) );
 			edgeID = edgeIdIter.value();
 		}
 		else {
@@ -132,18 +132,18 @@ bool Model::EdgeDAO::addMetaEdgesToDB( QSqlDatabase* conn, QMap<qlonglong, osg::
 	return true;
 }
 
-bool Model::EdgeDAO::addEdgesColorToDB( QSqlDatabase* conn, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges, Data::GraphLayout* layout, QMap<qlonglong, qlonglong> newMetaEdgeID, bool meta )
+bool Model::EdgeDAO::addEdgesColorToDB( QSqlDatabase* conn, QMap<QString, osg::ref_ptr<Data::Edge> >* edges, Data::GraphLayout* layout, QMap<QString, qlonglong> newMetaEdgeID, bool meta )
 {
-	QMap< qlonglong,osg::ref_ptr<Data::Edge> >::const_iterator iEdges = edges->constBegin();
+    QMap< QString,osg::ref_ptr<Data::Edge> >::const_iterator iEdges = edges->constBegin();
 	qlonglong edgeID;
-	QMap<qlonglong, qlonglong>::iterator edgeIdIter;
+    QMap<QString, qlonglong>::iterator edgeIdIter;
 
 	while ( iEdges != edges->constEnd() ) {
 		//ulozime farbu len hranam, ktore maju farbu inu nez default
 		if ( iEdges.value()->getEdgeColor()[0] != 1.f || iEdges.value()->getEdgeColor()[1] != 1.f ||iEdges.value()->getEdgeColor()[2] != 1.f ||iEdges.value()->getEdgeColor()[3] != 1.f ) {
 			if ( meta ) {
-				if ( newMetaEdgeID.contains( iEdges.value()->getId() ) ) {
-					edgeIdIter = newMetaEdgeID.find( iEdges.value()->getId() );
+                if ( newMetaEdgeID.contains( QString::number( iEdges.value()->getId() ) ) ) {
+                    edgeIdIter = newMetaEdgeID.find( QString::number( iEdges.value()->getId() ) );
 					edgeID = edgeIdIter.value();
 				}
 				else {
@@ -166,19 +166,19 @@ bool Model::EdgeDAO::addEdgesColorToDB( QSqlDatabase* conn, QMap<qlonglong, osg:
 	return true;
 }
 
-bool Model::EdgeDAO::addEdgesScaleToDB( QSqlDatabase* conn, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges, Data::GraphLayout* layout,  QMap<qlonglong, qlonglong> newMetaEdgeID, bool meta, float defaultScale )
+bool Model::EdgeDAO::addEdgesScaleToDB( QSqlDatabase* conn, QMap<QString, osg::ref_ptr<Data::Edge> >* edges, Data::GraphLayout* layout,  QMap<QString, qlonglong> newMetaEdgeID, bool meta, float defaultScale )
 {
-	QMap< qlonglong,osg::ref_ptr<Data::Edge> >::const_iterator iEdges = edges->constBegin();
+    QMap< QString,osg::ref_ptr<Data::Edge> >::const_iterator iEdges = edges->constBegin();
 	qlonglong edgeID;
-	QMap<qlonglong, qlonglong>::iterator edgeIdIter;
+    QMap<QString, qlonglong>::iterator edgeIdIter;
 
 	while ( iEdges != edges->constEnd() ) {
 		//ulozime scale len hranam, ktore maju scale ine nez default
 		bool isNotDefault = !qFuzzyCompare( iEdges.value()->getScale(),defaultScale );
 		if ( isNotDefault ) {
 			if ( meta ) {
-				if ( newMetaEdgeID.contains( iEdges.value()->getId() ) ) {
-					edgeIdIter = newMetaEdgeID.find( iEdges.value()->getId() );
+                if ( newMetaEdgeID.contains( QString::number( iEdges.value()->getId() ) ) ) {
+                    edgeIdIter = newMetaEdgeID.find( QString::number( iEdges.value()->getId() ) );
 					edgeID = edgeIdIter.value();
 				}
 				else {
@@ -545,13 +545,13 @@ QMap<qlonglong, float> Model::EdgeDAO::getScales( QSqlDatabase* conn, bool* erro
 	return scales;
 }
 
-QMap<qlonglong, qlonglong> Model::EdgeDAO::getNewMetaEdgesId( QSqlDatabase* conn, qlonglong graphID, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges )
+QMap<QString, qlonglong> Model::EdgeDAO::getNewMetaEdgesId( QSqlDatabase* conn, qlonglong graphID, QMap<QString, osg::ref_ptr<Data::Edge> >* edges )
 {
-	QMap<qlonglong, qlonglong> newId;
+    QMap<QString, qlonglong> newId;
 	qlonglong maxId = 0;
 	QSqlQuery* query;
 
-	QMap< qlonglong, osg::ref_ptr<Data::Edge> >::const_iterator iEdges = edges->constBegin();
+    QMap< QString, osg::ref_ptr<Data::Edge> >::const_iterator iEdges = edges->constBegin();
 
 	if ( conn==NULL || !conn->isOpen() ) {
 		qDebug() << "[Model::EdgeDAO::getNewMetaEdgesId] Connection to DB not opened.";
@@ -576,7 +576,7 @@ QMap<qlonglong, qlonglong> Model::EdgeDAO::getNewMetaEdgesId( QSqlDatabase* conn
 	//vytvarame mapu novych hran
 	while ( iEdges != edges->constEnd() ) {
 		maxId++;
-		newId.insert( iEdges.value()->getId(), maxId );
+        newId.insert( QString::number( iEdges.value()->getId() ), maxId );
 		++iEdges;
 	}
 

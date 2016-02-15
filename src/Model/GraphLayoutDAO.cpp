@@ -21,9 +21,9 @@ Model::GraphLayoutDAO::~GraphLayoutDAO( void )
 {
 }
 
-QMap<qlonglong, QString> Model::GraphLayoutDAO::getLayoutsNames( qlonglong graph_id, QSqlDatabase* conn, bool* error )
+QMap<QString, QString> Model::GraphLayoutDAO::getLayoutsNames( qlonglong graph_id, QSqlDatabase* conn, bool* error )
 {
-	QMap<qlonglong, QString> layoutNames;
+    QMap<QString, QString> layoutNames;
 	*error = FALSE;
 
 	if ( conn==NULL || !conn->open() ) { //check if we have connection
@@ -43,7 +43,7 @@ QMap<qlonglong, QString> Model::GraphLayoutDAO::getLayoutsNames( qlonglong graph
 
 	//nacitavame nazvy rozlozeni z databazy
 	while ( query->next() ) {
-		layoutNames.insert( query->value( 0 ).toLongLong(), query->value( 1 ).toString() );
+        layoutNames.insert( QString::number( query->value( 0 ).toLongLong() ), query->value( 1 ).toString() );
 	}
 
 	return layoutNames;
@@ -80,9 +80,9 @@ QList<qlonglong> Model::GraphLayoutDAO::getListOfLayouts( QSqlDatabase* conn, bo
 	return layouts;
 }
 
-QMap<qlonglong, Data::GraphLayout*> Model::GraphLayoutDAO::getLayouts( Data::Graph* graph, QSqlDatabase* conn, bool* error )
+QMap<QString, Data::GraphLayout*> Model::GraphLayoutDAO::getLayouts( Data::Graph* graph, QSqlDatabase* conn, bool* error )
 {
-	QMap<qlonglong, Data::GraphLayout*> qgraphslayouts;
+    QMap<QString, Data::GraphLayout*> qgraphslayouts;
 	*error = FALSE;
 
 	if ( conn==NULL || !conn->open() ) { //check if we have connection
@@ -113,7 +113,7 @@ QMap<qlonglong, Data::GraphLayout*> Model::GraphLayoutDAO::getLayouts( Data::Gra
 	}
 
 	while ( query->next() ) {
-		qgraphslayouts.insert( query->value( 0 ).toLongLong(), new Data::GraphLayout( query->value( 0 ).toLongLong(),graph,query->value( 1 ).toString(),conn ) );
+        qgraphslayouts.insert( QString::number( query->value( 0 ).toLongLong() ), new Data::GraphLayout( query->value( 0 ).toLongLong(),graph,query->value( 1 ).toString(),conn ) );
 	}
 
 	return qgraphslayouts;

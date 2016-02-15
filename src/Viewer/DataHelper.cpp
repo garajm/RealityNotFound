@@ -124,7 +124,7 @@ void DataHelper::generatePyramid(std::vector<Data::Node*> *nodes, std::vector<Da
 
 }
 */
-void DataHelper::generateCylinder( QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges,QMap<qlonglong, Data::Type*>* types, int pocetUzlovNaPodstave, int pocetUzlovNaVysku )
+void DataHelper::generateCylinder( QMap<QString, osg::ref_ptr<Data::Node> >* nodes, QMap<QString, osg::ref_ptr<Data::Edge> >* edges,QMap<QString, Data::Type*>* types, int pocetUzlovNaPodstave, int pocetUzlovNaVysku )
 {
 	int startN = nodes->count();
 	int startE = edges->count();
@@ -134,8 +134,8 @@ void DataHelper::generateCylinder( QMap<qlonglong, osg::ref_ptr<Data::Node> >* n
 	QString tEStr( "hrana" );
 	Data::Type* vType = new Data::Type( 1,tVStr,0 );
 	Data::Type* eType = new Data::Type( 2,tEStr,0 );
-	types->insert( 1, vType );
-	types->insert( 2, eType );
+    types->insert( QString::number( 1 ), vType );
+    types->insert( QString::number( 2 ), eType );
 
 	// pridame N uzlov
 	for ( int i = startN; i < startN + pocetUzlovNaVysku*pocetUzlovNaPodstave; i++ ) {
@@ -145,10 +145,10 @@ void DataHelper::generateCylinder( QMap<qlonglong, osg::ref_ptr<Data::Node> >* n
 		// kazdy uzol ma na zaciatku prazdnu mnozinu hran - toto je nejaka blbost FIXME!
 		//QMap<long, Data::Edge*> edges;
 		// vytvorime novy uzol a pridame ho medzi ostatne
-		osg::ref_ptr<Data::Node> node = new Data::Node( i, QString::fromStdString( out.str() ), types->value( 1 ), 0, NULL, osg::Vec3f( 0,0,0 ) );
+        osg::ref_ptr<Data::Node> node = new Data::Node( i, QString::fromStdString( out.str() ), types->value( QString::number( 1 ) ), 0, NULL, osg::Vec3f( 0,0,0 ) );
 		//std::cout << nodes->capacity();
 		//std::cout << "\n";
-		nodes->insert( i, node );
+        nodes->insert( QString::number( i ), node );
 	}
 
 	// ID hrany
@@ -179,13 +179,13 @@ void DataHelper::generateCylinder( QMap<qlonglong, osg::ref_ptr<Data::Node> >* n
 			//std::cout << "\n";
 
 			// spravime hranu medzi dvoma uzlami podstavy
-			osg::ref_ptr<Data::Edge> edge = new Data::Edge( id, QString::fromStdString( out.str() ), NULL, nodes->value( j*pocetUzlovNaPodstave + i + startN ), nodes->value( to ), types->value( 2 ), ( getRandomNumber( 0,1 ) ? true : false ), 2 );
+            osg::ref_ptr<Data::Edge> edge = new Data::Edge( id, QString::fromStdString( out.str() ), NULL, nodes->value( QString::number( j*pocetUzlovNaPodstave + i + startN ) ), nodes->value( QString::number( to ) ), types->value( QString::number( 2 ) ), ( getRandomNumber( 0,1 ) ? true : false ), 2 );
 			edge->linkNodes( edges );
 			id++;
 
 			// ak nejde o spodnu podstavu, tak kazdy vrchol spojime s dalsim ktory je nizsie
 			if ( j > 0 ) {
-				osg::ref_ptr<Data::Edge> edge0 = new Data::Edge( id, QString::fromStdString( out.str() ), NULL, nodes->value( j*pocetUzlovNaPodstave + i + startN ), nodes->value( ( j-1 )*pocetUzlovNaPodstave + i + startN ), types->value( 2 ), true, 2 );
+                osg::ref_ptr<Data::Edge> edge0 = new Data::Edge( id, QString::fromStdString( out.str() ), NULL, nodes->value( QString::number( j*pocetUzlovNaPodstave + i + startN ) ), nodes->value( QString::number( ( j-1 )*pocetUzlovNaPodstave + i + startN ) ),  types->value( QString::number( 2 ) ), true, 2 );
 				edge0->linkNodes( edges );
 				id++;
 			}

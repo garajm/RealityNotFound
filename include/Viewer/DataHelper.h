@@ -74,7 +74,7 @@ public:
 	             * \param pocetUzlovNaPodstave  pocet uzlov na podstave
 	             * \param pocetUzlovNaVysku     pocet uzlov na vysku valca
 	             **/
-	static void generateCylinder( QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges,QMap<qlonglong, Data::Type*>* types, int pocetUzlovNaPodstave, int pocetUzlovNaVysku );
+    static void generateCylinder( QMap<QString, osg::ref_ptr<Data::Node> >* nodes, QMap<QString, osg::ref_ptr<Data::Edge> >* edges,QMap<QString, Data::Type*>* types, int pocetUzlovNaPodstave, int pocetUzlovNaVysku );
 
 	/**
 	             * \brief Vygeneruje testovaciu scenu pozostavajucu z niekolkych samostatnych grafov

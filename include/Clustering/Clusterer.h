@@ -50,7 +50,7 @@ public:
 
 	// clears clusters collection, if 'removeReferences' = true then removes cluster references from all nodes and resets their color to default
 	void resetClusters( bool removeReferences = false );
-	QMap<qlonglong, osg::ref_ptr<Data::Cluster> > getClusters()
+    QMap<QString, osg::ref_ptr<Data::Cluster> > getClusters()
 	{
 		return clusters;
 	}
@@ -68,14 +68,14 @@ public:
 private:
 
 	Data::Graph* graph;
-	QMap<qlonglong, osg::ref_ptr<Data::Cluster> > clusters;
+    QMap<QString, osg::ref_ptr<Data::Cluster> > clusters;
 	int algorithmType;
 	int clusteringDepth;
 	QProgressDialog* progressBar;
 
-	void clusterNeighbours( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels );
-	void clusterLeafs( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels );
-	void clusterAdjacency( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels );
+    void clusterNeighbours( QMap<QString, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels );
+    void clusterLeafs( QMap<QString, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels );
+    void clusterAdjacency( QMap<QString, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels );
 
 	int getNextId()
 	{

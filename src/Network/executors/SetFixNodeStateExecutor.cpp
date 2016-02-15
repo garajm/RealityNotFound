@@ -15,19 +15,19 @@ void SetFixNodeStateExecutor::execute_client()
 
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
 	Client* client = Client::getInstance();
-	if ( nodes->contains( id ) ) {
-		Data::Node* node = *nodes->find( id );
+    if ( nodes->contains( QString::number( id ) ) ) {
+        Data::Node* node = *nodes->find( QString::number( id ) );
 		this->SetFixNodeState( node, state );
 		if ( client->selected_nodes.contains( node ) ) {
 			client->selected_nodes.removeOne( node );
 		}
 	}
 	else {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >* mergeNodes = currentGraph->getMetaNodes();
-		if ( mergeNodes->contains( id ) ) {
-			Data::Node* node = *mergeNodes->find( id );
+        QMap<QString, osg::ref_ptr<Data::Node> >* mergeNodes = currentGraph->getMetaNodes();
+        if ( mergeNodes->contains( QString::number( id ) ) ) {
+            Data::Node* node = *mergeNodes->find( QString::number( id ) );
 			this->SetFixNodeState( node,state );
 			if ( client->selected_nodes.contains( node ) ) {
 				client->selected_nodes.removeOne( node );
@@ -45,14 +45,14 @@ void SetFixNodeStateExecutor::execute_server()
 	*stream >> id >> state;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	if ( nodes->contains( id ) ) {
-		this->SetFixNodeState( *nodes->find( id ), state );
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    if ( nodes->contains( QString::number( id ) ) ) {
+        this->SetFixNodeState( *nodes->find( QString::number( id ) ), state );
 	}
 	else {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> >* mergeNodes = currentGraph->getMetaNodes();
-		if ( mergeNodes->contains( id ) ) {
-			this->SetFixNodeState( *mergeNodes->find( id ),state );
+        QMap<QString, osg::ref_ptr<Data::Node> >* mergeNodes = currentGraph->getMetaNodes();
+        if ( mergeNodes->contains( QString::number( id ) ) ) {
+            this->SetFixNodeState( *mergeNodes->find( QString::number( id ) ),state );
 		}
 	}
 

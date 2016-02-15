@@ -196,7 +196,7 @@ void OptionsWindow::saveNodeTypes( TreeItem* index )
 {
 	//nacitanie typov grafu
 	Manager::GraphManager* manager = Manager::GraphManager::getInstance();
-	QMap<qlonglong, Data::Type*>* types = manager->getActiveGraph()->getTypes();
+    QMap<QString, Data::Type*>* types = manager->getActiveGraph()->getTypes();
 
 	for ( int i=0; i < index->childCount(); i++ ) {
 		TreeItem* root = index->child( i );
@@ -205,7 +205,7 @@ void OptionsWindow::saveNodeTypes( TreeItem* index )
 			//pre kazdy uloz data
 			for ( int j=0; j< root->childCount(); j++ ) {
 				TreeItem* item = root->child( j );
-				Data::Type* type = types->value( item->data( 2 ).toLongLong() );
+                Data::Type* type = types->value( QString::number( item->data( 2 ).toLongLong() ) );
 				QMap<QString, QString>* settings = type->getSettings();
 				QList<QString> atributes = item->data( 1 ).toString().split( ";" );
 

@@ -24,7 +24,7 @@ public:
 	*/
 	virtual osg::ref_ptr<Data::Node> getHyperEdge(
 		QString srcNodeName,
-		QString edgeName,QMap<qlonglong,
+        QString edgeName,QMap<QString,
 		osg::ref_ptr<Data::Edge> >* mapa
 	);
 

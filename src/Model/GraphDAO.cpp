@@ -121,7 +121,7 @@ Data::Graph* Model::GraphDAO::getGraph( QSqlDatabase* conn, bool* error2, qlongl
 	osg::Vec3f position;
 	QMap<qlonglong, osg::Vec3f> positions;
 	QMap<qlonglong, osg::Vec4> nodeColors;
-	QMap<qlonglong, osg::Vec4f> edgeColors;
+    QMap<qlonglong, osg::Vec4f> edgeColors;
 	QMap<qlonglong, float> nodeScales;
 	QMap<qlonglong, float> edgeScales;
 	QMap<qlonglong, int> nodeMasks;
@@ -213,20 +213,20 @@ Data::Graph* Model::GraphDAO::getGraph( QSqlDatabase* conn, bool* error2, qlongl
 			newGraph->addEdge( edgeID, edgeName, iNodes1.value(), iNodes2.value(), type, isOriented );
 
 			if ( edgeColors.contains( edgeID ) ) {
-				if ( newGraph->getEdges()->contains( edgeID ) ) {
-					newGraph->getEdges()->find( edgeID ).value()->setEdgeColor( edgeColors.value( edgeID ) );
+                if ( newGraph->getEdges()->contains( QString::number( edgeID ) ) ) {
+                    newGraph->getEdges()->find( QString::number( edgeID ) ).value()->setEdgeColor( edgeColors.value(  edgeID  ) );
 				}
 				else {
-					newGraph->getMetaEdges()->find( edgeID ).value()->setEdgeColor( edgeColors.value( edgeID ) );
+                    newGraph->getMetaEdges()->find( QString::number( edgeID ) ).value()->setEdgeColor( edgeColors.value( edgeID ) );
 				}
 			}
 
 			if ( edgeScales.contains( edgeID ) ) {
-				if ( newGraph->getEdges()->contains( edgeID ) ) {
-					newGraph->getEdges()->find( edgeID ).value()->setScale( edgeScales.value( edgeID ) );
+                if ( newGraph->getEdges()->contains( QString::number( edgeID ) ) ) {
+                    newGraph->getEdges()->find( QString::number( edgeID ) ).value()->setScale( edgeScales.value( edgeID ) );
 				}
 				else {
-					newGraph->getMetaEdges()->find( edgeID ).value()->setScale( edgeScales.value( edgeID ) );
+                    newGraph->getMetaEdges()->find( QString::number( edgeID ) ).value()->setScale( edgeScales.value( edgeID ) );
 				}
 			}
 		}

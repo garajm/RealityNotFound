@@ -29,7 +29,7 @@ Data::Node::Node( qlonglong id, QString name, Data::Type* type, float scaling, D
 {
 	//konstruktor
 	this->mIsFocused = false;
-	this->edges = new QMap<qlonglong, osg::ref_ptr<Data::Edge> >;
+    this->edges = new QMap<QString, osg::ref_ptr<Data::Edge> >;
 	this->cluster = NULL;
 	// Duransky start - Pociatocne nastavenie roznych cisiel vertigo rovin pre uzly
 	this->numberOfVertigoPlane = id;
@@ -77,11 +77,13 @@ Data::Node::Node( qlonglong id, QString name, Data::Type* type, float scaling, D
 	layerID = 0;  //node is not on layer of radial layout
 	radialLayout = NULL;  //node does not belong to radial layout
 	//volovar_kon
+
+    luaIdentifier = QString::number( id );
 }
 
 Data::Node::~Node( void )
 {
-	foreach ( qlonglong i, edges->keys() ) {
+    foreach ( QString i, edges->keys() ) {
 		edges->value( i )->unlinkNodes();
 	}
 	edges->clear(); //staci to ?? netreba spravit delete/remove ??
@@ -92,13 +94,13 @@ Data::Node::~Node( void )
 void Data::Node::addEdge( osg::ref_ptr<Data::Edge> edge )
 {
 	//pridanie napojenej hrany na uzol
-	edges->insert( edge->getId(), edge );
+    edges->insert( QString::number( edge->getId() ), edge );
 }
 
 void Data::Node::removeEdge( osg::ref_ptr<Data::Edge> edge )
 {
 	//odobranie napojenej hrany zo zoznamu
-	edges->remove( edge->getId() );
+    edges->remove( QString::number( edge->getId() ) );
 }
 
 Data::Node* Data::Node::getParentNode()
@@ -118,7 +120,7 @@ void Data::Node::setParentNode( Node* parent )
 void Data::Node::removeAllEdges()
 {
 	//odpojenie od vsetkych hran
-	foreach ( qlonglong i, edges->keys() ) {
+    foreach ( QString i, edges->keys() ) {
 		edges->value( i )->unlinkNodesAndRemoveFromGraph();
 	}
 	edges->clear();
@@ -152,7 +154,7 @@ QSet<Data::Node*> Data::Node::getIncidentNodes() const
 {
 	QSet<Node*> nodes;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator i;
+    QMap<QString, osg::ref_ptr<Data::Edge> >::iterator i;
 	for ( i = edges->begin(); i != edges->end(); ++i ) {
 		osg::ref_ptr<Data::Edge> edge = i.value();
 		nodes.insert( edge->getOtherNode( this ) );

@@ -4,7 +4,7 @@
 #include "Data/Node.h"
 #include "Data/Edge.h"
 
-void Util::ElementSelector::randomElementSelector( QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes, QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges, int num, Vwr::PickHandler* pickhandler )
+void Util::ElementSelector::randomElementSelector( QMap<QString, osg::ref_ptr<Data::Node> >* nodes, QMap<QString, osg::ref_ptr<Data::Edge> >* edges, int num, Vwr::PickHandler* pickhandler )
 {
 	pickhandler->unselectPickedEdges();
 	pickhandler->unselectPickedNodes();
@@ -27,14 +27,14 @@ void Util::ElementSelector::randomElementSelector( QMap<qlonglong, osg::ref_ptr<
 	}
 }
 
-void Util::ElementSelector::weightedElementSelector( QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes, int num, Vwr::PickHandler* pickhandler )
+void Util::ElementSelector::weightedElementSelector( QMap<QString, osg::ref_ptr<Data::Node> >* nodes, int num, Vwr::PickHandler* pickhandler )
 {
 	pickhandler->unselectPickedEdges();
 	pickhandler->unselectPickedNodes();
 
 	QMap<float, osg::ref_ptr<Data::Node> > weightedNodes;
 
-	QMutableMapIterator<qlonglong, osg::ref_ptr<Data::Node> > i( *nodes );
+    QMutableMapIterator<QString, osg::ref_ptr<Data::Node> > i( *nodes );
 
 	while ( i.hasNext() ) {
 		i.next();

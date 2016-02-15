@@ -13,9 +13,9 @@ void SetNodeLabelExecutor::execute_client()
 	*stream >> id >> label;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	if ( nodes->contains( id ) ) {
-		Data::Node* node = *nodes->find( id );
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    if ( nodes->contains( QString::number( id ) ) ) {
+        Data::Node* node = *nodes->find( QString::number( id ) );
 		( ( Data::AbsNode* )node )->setName( label );
 		node->setLabelText( label );
 		node->reloadConfig();
@@ -32,9 +32,9 @@ void SetNodeLabelExecutor::execute_server()
 	*stream >> id >> label;
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
-	if ( nodes->contains( id ) ) {
-		Data::Node* node = *nodes->find( id );
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph -> getNodes();
+    if ( nodes->contains( QString::number( id ) ) ) {
+        Data::Node* node = *nodes->find( QString::number( id ) );
 		( ( Data::AbsNode* )node )->setName( label );
 		node->setLabelText( label );
 		node->reloadConfig();

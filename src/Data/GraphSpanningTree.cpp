@@ -13,7 +13,7 @@ void Data::GraphSpanningTree::addGroup( QList<qlonglong> nodes, int depth, qlong
 	groupToDepth.insert( groupId,depth );
 	QList<qlonglong>::iterator itNodeId;
 	for ( itNodeId=nodes.begin(); itNodeId!=nodes.end(); ++itNodeId ) {
-		nodeToGroup.insert( ( *itNodeId ),groupId );
+        nodeToGroup.insert( QString::number( ( *itNodeId ) ),groupId );
 	}
 
 }
@@ -28,14 +28,14 @@ QList<qlonglong> Data::GraphSpanningTree::getGroupsInDepth( int depth )
 	return groupToDepth.keys( depth );
 }
 
-QList<qlonglong> Data::GraphSpanningTree::getNodesInGroup( qlonglong groupId )
+QList<QString> Data::GraphSpanningTree::getNodesInGroup( qlonglong groupId )
 {
 	return nodeToGroup.keys( groupId );
 }
 
-qlonglong Data::GraphSpanningTree::getRandomNodeInGroup( qlonglong groupId )
+QString Data::GraphSpanningTree::getRandomNodeInGroup( qlonglong groupId )
 {
-	return nodeToGroup.key( groupId );
+    return nodeToGroup.key( groupId );
 }
 
 qlonglong Data::GraphSpanningTree::getNextGroupId()

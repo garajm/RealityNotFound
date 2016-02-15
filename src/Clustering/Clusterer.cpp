@@ -55,7 +55,7 @@ void Clusterer::cluster( Data::Graph* graph, QProgressDialog* clusteringProgress
 	qDebug() << "number of new Clusters: " << clusters.size();
 
 	qDebug() << "***** DEBUG VNORENE CLUSTRE BEGIN";
-	QMap<qlonglong, osg::ref_ptr<Data::Cluster> >::iterator i;
+    QMap<QString, osg::ref_ptr<Data::Cluster> >::iterator i;
 
 	for ( i = clusters.begin(); i != clusters.end(); ++i ) {
 		osg::ref_ptr<Data::Cluster> cluster = i.value();
@@ -110,7 +110,7 @@ osg::Vec4 Clusterer::getNewColor( int colorCounter )
 	return colors[colorCounter % 21];
 }
 
-void Clusterer::clusterNeighbours( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels )
+void Clusterer::clusterNeighbours( QMap<QString, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels )
 {
 
 	progressBar->reset();
@@ -118,15 +118,15 @@ void Clusterer::clusterNeighbours( QMap<qlonglong, osg::ref_ptr<Data::Node> >* s
 	progressBar->setMaximum( someNodes->size() );
 	int step = 0;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> > newClusters;
+    QMap<QString, osg::ref_ptr<Data::Node> > newClusters;
 
 	Manager::GraphManager* manager = Manager::GraphManager::getInstance();
-	QMap<qlonglong, Data::Type*>* types = manager->getActiveGraph()->getTypes();
-	Data::Type* type = types->value( 1 );
+    QMap<QString, Data::Type*>* types = manager->getActiveGraph()->getTypes();
+    Data::Type* type = types->value( QString::number( 1 ) );
 
 	progressBar->setLabelText( QString( "Clustering the graph. Depth = %1" ).arg( clusteringDepth - maxLevels ) );
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator i;
+    QMap<QString, osg::ref_ptr<Data::Node> >::iterator i;
 	for ( i = someNodes->begin(); i != someNodes->end(); ++i ) {
 		progressBar->setValue( step++ );
 		osg::ref_ptr<Data::Node> node = i.value();
@@ -134,11 +134,11 @@ void Clusterer::clusterNeighbours( QMap<qlonglong, osg::ref_ptr<Data::Node> >* s
 			Data::Cluster* cluster = NULL;
 			QSet<Data::Node*> incidentNodes = node->getIncidentNodes();
 			foreach ( Data::Node* incidentNode, incidentNodes ) {
-				if ( !newClusters.contains( incidentNode->getId() ) && incidentNode->getCluster() == NULL ) {
+                if ( !newClusters.contains( QString::number( incidentNode->getId() ) ) && incidentNode->getCluster() == NULL ) {
 					if ( cluster == NULL ) {
 						cluster = new Data::Cluster( getNextId(), "name", type, graph->getNodeScale(), graph, osg::Vec3f( 0,0,0 ) );
-						clusters.insert( cluster->getId(), cluster );
-						newClusters.insert( cluster->getId(), cluster );
+                        clusters.insert( QString::number( cluster->getId() ), cluster );
+                        newClusters.insert( QString::number( cluster->getId() ), cluster );
 
 						cluster->setColor( this->getNewColor( colorCounter ) );
 						colorCounter++;
@@ -162,14 +162,14 @@ void Clusterer::clusterNeighbours( QMap<qlonglong, osg::ref_ptr<Data::Node> >* s
 	progressBar->setValue( someNodes->size() );
 
 	if ( newClusters.size() > 1 && maxLevels != 0 ) {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> > newNodes( newClusters );
+        QMap<QString, osg::ref_ptr<Data::Node> > newNodes( newClusters );
 		newClusters.clear();
 		clusterNeighbours( &newNodes, maxLevels - 1 );
 	}
 
 }
 
-void Clusterer::clusterLeafs( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels )
+void Clusterer::clusterLeafs( QMap<QString, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels )
 {
 
 	progressBar->reset();
@@ -177,15 +177,15 @@ void Clusterer::clusterLeafs( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNo
 	progressBar->setMaximum( someNodes->size() );
 	int step = 0;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> > newClusters;
+    QMap<QString, osg::ref_ptr<Data::Node> > newClusters;
 
 	Manager::GraphManager* manager = Manager::GraphManager::getInstance();
-	QMap<qlonglong, Data::Type*>* types = manager->getActiveGraph()->getTypes();
-	Data::Type* type = types->value( 1 );
+    QMap<QString, Data::Type*>* types = manager->getActiveGraph()->getTypes();
+    Data::Type* type = types->value( QString::number( 1 ) );
 
 	progressBar->setLabelText( QString( "Clustering the graph. Depth = %1" ).arg( clusteringDepth - maxLevels ) );
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator i;
+    QMap<QString, osg::ref_ptr<Data::Node> >::iterator i;
 	for ( i = someNodes->begin(); i != someNodes->end(); ++i ) {
 		progressBar->setValue( step++ );
 		osg::ref_ptr<Data::Node> node = i.value();
@@ -196,13 +196,13 @@ void Clusterer::clusterLeafs( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNo
 			if ( incidentNodes.size() == 1 ) {
 				Data::Node* parent = *( incidentNodes.constBegin() );
 
-				osg::ref_ptr<Data::Cluster> cluster = clusters.value( parent->getId() );
+                osg::ref_ptr<Data::Cluster> cluster = clusters.value( QString::number( parent->getId() ) );
 
 				// pridaj rodica do clustru (ak uz nie je v clustri - tzn. spracuvame dalsi list toho rodica)
 				if ( cluster == NULL ) {
 					cluster = new Data::Cluster( parent->getId(), "name", type, graph->getNodeScale(), graph, osg::Vec3f( 0,0,0 ) );
-					clusters.insert( cluster->getId(), cluster );
-					newClusters.insert( cluster->getId(), cluster );
+                    clusters.insert( QString::number( cluster->getId() ), cluster );
+                    newClusters.insert( QString::number( cluster->getId() ), cluster );
 
 					cluster->setColor( this->getNewColor( colorCounter ) );
 					colorCounter++;
@@ -218,7 +218,7 @@ void Clusterer::clusterLeafs( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNo
 			}
 			else {
 				// nie je list -> skus ho zhlukovat v dalsej hlbke
-				newClusters.insert( node->getId(), node );
+                newClusters.insert( QString::number( node->getId() ), node );
 			}
 		}
 	}
@@ -226,14 +226,14 @@ void Clusterer::clusterLeafs( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNo
 	progressBar->setValue( someNodes->size() );
 
 	if ( newClusters.size() > 1 && maxLevels != 0 ) {
-		QMap<qlonglong, osg::ref_ptr<Data::Node> > newNodes( newClusters );
+        QMap<QString, osg::ref_ptr<Data::Node> > newNodes( newClusters );
 		newClusters.clear();
 		clusterLeafs( &newNodes, maxLevels - 1 );
 	}
 
 }
 
-void Clusterer::clusterAdjacency( QMap<qlonglong, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels )
+void Clusterer::clusterAdjacency( QMap<QString, osg::ref_ptr<Data::Node> >* someNodes, int maxLevels )
 {
 
 	progressBar->reset();
@@ -241,11 +241,11 @@ void Clusterer::clusterAdjacency( QMap<qlonglong, osg::ref_ptr<Data::Node> >* so
 	progressBar->setMaximum( someNodes->size() );
 	int step = 0;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> > newClusters;
+    QMap<QString, osg::ref_ptr<Data::Node> > newClusters;
 
 	Manager::GraphManager* manager = Manager::GraphManager::getInstance();
-	QMap<qlonglong, Data::Type*>* types = manager->getActiveGraph()->getTypes();
-	Data::Type* type = types->value( 1 );
+    QMap<QString, Data::Type*>* types = manager->getActiveGraph()->getTypes();
+    Data::Type* type = types->value( QString::number( 1 ) );
 
 	std::size_t n = static_cast<std::size_t>( someNodes->size() );
 	std::vector<bool> p( 7 );
@@ -255,8 +255,8 @@ void Clusterer::clusterAdjacency( QMap<qlonglong, osg::ref_ptr<Data::Node> >* so
 	unsigned char K = 100;
 
 	std::size_t i = 0, j = 0;
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator iterator;
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator iterator2;
+    QMap<QString, osg::ref_ptr<Data::Node> >::iterator iterator;
+    QMap<QString, osg::ref_ptr<Data::Node> >::iterator iterator2;
 
 	// prepare adjacency matrix
 	for ( iterator = someNodes->begin(); iterator != someNodes->end(); ++iterator, i++ ) {
@@ -319,7 +319,7 @@ void Clusterer::clusterAdjacency( QMap<qlonglong, osg::ref_ptr<Data::Node> >* so
 	progressBar->setLabelText( QString( "Clustering the graph. Depth = %1" ).arg( clusteringDepth - maxLevels ) );
 
 	// set of clusters
-	QSet<qlonglong> clustered;
+    QSet<qlonglong> clustered;
 	for ( iterator = someNodes->begin(); iterator != someNodes->end(); ++iterator, i++ ) {
 		if ( progressBar->wasCanceled() ) {
 			return;
@@ -375,8 +375,8 @@ void Clusterer::clusterAdjacency( QMap<qlonglong, osg::ref_ptr<Data::Node> >* so
 		if ( !toCluster.isEmpty() ) {
 			if ( c == NULL ) {
 				c = new Data::Cluster( getNextId(), "name", type, graph->getNodeScale(), graph, osg::Vec3f( 0,0,0 ) );
-				clusters.insert( c->getId(), c );
-				newClusters.insert( c->getId(), c );
+                clusters.insert( QString::number( c->getId() ), c );
+                newClusters.insert( QString::number( c->getId() ), c );
 
 				c->setColor( this->getNewColor( colorCounter ) );
 				colorCounter++;
@@ -397,10 +397,10 @@ void Clusterer::clusterAdjacency( QMap<qlonglong, osg::ref_ptr<Data::Node> >* so
 		}
 	}
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> > newNodesCopy( *someNodes );
+    QMap<QString, osg::ref_ptr<Data::Node> > newNodesCopy( *someNodes );
 
-	for ( QSet<qlonglong>::const_iterator i = clustered.constBegin(); i != clustered.constEnd(); ++i ) {
-		newNodesCopy.remove( *i );
+    for ( QSet<qlonglong>::const_iterator i = clustered.constBegin(); i != clustered.constEnd(); ++i ) {
+        newNodesCopy.remove( QString::number( *i ) );
 	}
 
 	newNodesCopy.unite( newClusters );
@@ -417,7 +417,7 @@ void Clusterer::clusterAdjacency( QMap<qlonglong, osg::ref_ptr<Data::Node> >* so
 int Clusterer::getMaxCountOfNodesInClusters()
 {
 	int max = 0;
-	QMap<qlonglong, osg::ref_ptr<Data::Cluster> >::iterator i;
+    QMap<QString, osg::ref_ptr<Data::Cluster> >::iterator i;
 	for ( i = clusters.begin(); i != clusters.end(); ++i ) {
 		osg::ref_ptr<Data::Cluster> cluster = i.value();
 
@@ -431,7 +431,7 @@ int Clusterer::getMaxCountOfNodesInClusters()
 void Clusterer::resetClusters( bool removeReferences )
 {
 	if ( removeReferences ) {
-		for ( QMap<qlonglong, osg::ref_ptr<Data::Cluster> >::iterator c = clusters.begin(); c != clusters.end(); ++c ) {
+        for ( QMap<QString, osg::ref_ptr<Data::Cluster> >::iterator c = clusters.begin(); c != clusters.end(); ++c ) {
 			osg::ref_ptr<Data::Cluster> cluster = c.value();
 
 			QSet<Data::Node*> allClusteredNodes = cluster->getALLClusteredNodes();

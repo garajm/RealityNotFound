@@ -679,13 +679,13 @@ void CoreGraph::reload( Data::Graph* graph )
 		this->qmetaEdges = graph->getMetaEdges();
 	}
 	else {
-		this->in_nodes = new QMap<qlonglong, osg::ref_ptr<Data::Node> >;
-		this->in_edges = new QMap<qlonglong, osg::ref_ptr<Data::Edge> >;
-		this->qmetaNodes = new QMap<qlonglong, osg::ref_ptr<Data::Node> >;
-		this->qmetaEdges = new QMap<qlonglong, osg::ref_ptr<Data::Edge> >;
+        this->in_nodes = new QMap<QString, osg::ref_ptr<Data::Node> >;
+        this->in_edges = new QMap<QString, osg::ref_ptr<Data::Edge> >;
+        this->qmetaNodes = new QMap<QString, osg::ref_ptr<Data::Node> >;
+        this->qmetaEdges = new QMap<QString, osg::ref_ptr<Data::Edge> >;
 	}
 
-	QMapIterator<qlonglong, osg::ref_ptr<Data::Edge> > i( *in_edges );
+    QMapIterator<QString, osg::ref_ptr<Data::Edge> > i( *in_edges );
 
 	while ( i.hasNext() ) {
 		i.next();
@@ -1022,9 +1022,9 @@ osg::ref_ptr<osg::Group> CoreGraph::initEdgeLabels()
 {
 	osg::ref_ptr<osg::Group> labels = new osg::Group;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator i = in_edges->begin();
+    QMap<QString, osg::ref_ptr<Data::Edge> >::iterator i = in_edges->begin();
 
-	while ( i != in_edges->end() ) {
+    while ( i != in_edges->end() ) {
 		labels->addChild( i.value()->createLabel( i.value()->Data::AbsEdge::getName() ) );
 		++i;
 	}
@@ -1046,10 +1046,10 @@ osg::ref_ptr<osg::Group> CoreGraph::initCustomNodes()
 	return customNodes;
 }
 
-void CoreGraph::createClusterGroup( QMap<qlonglong, osg::ref_ptr<Data::Cluster> > clusters )
+void CoreGraph::createClusterGroup( QMap<QString, osg::ref_ptr<Data::Cluster> > clusters )
 {
 	clustersGroup->removeChildren( 0,clustersGroup->getNumChildren() );
-	QMap<qlonglong, osg::ref_ptr<Data::Cluster> >::iterator i;
+    QMap<QString, osg::ref_ptr<Data::Cluster> >::iterator i;
 	for ( i = clusters.begin(); i != clusters.end(); ++i ) {
 		osg::ref_ptr<Data::Cluster> cluster = i.value();
 
@@ -1071,8 +1071,8 @@ void CoreGraph::createClusterGroup( QMap<qlonglong, osg::ref_ptr<Data::Cluster> 
 
 void CoreGraph::updateClustersCoords()
 {
-	QMap<qlonglong, osg::ref_ptr<Data::Cluster> > clusters = Clustering::Clusterer::getInstance().getClusters();
-	QMap<qlonglong, osg::ref_ptr<Data::Cluster> >::iterator i;
+    QMap<QString, osg::ref_ptr<Data::Cluster> > clusters = Clustering::Clusterer::getInstance().getClusters();
+    QMap<QString, osg::ref_ptr<Data::Cluster> >::iterator i;
 	for ( i = clusters.begin(); i != clusters.end(); ++i ) {
 		osg::ref_ptr<Data::Cluster> cluster = i.value();
 
@@ -1190,7 +1190,7 @@ void CoreGraph::setEdgeLabelsVisible( bool visible )
 
 void CoreGraph::setNodeLabelsVisible( bool visible )
 {
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator i = in_nodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator i = in_nodes->constBegin();
 
 	while ( i != in_nodes->constEnd() ) {
 		( *i )->showLabel( visible );
@@ -1202,7 +1202,7 @@ void CoreGraph::reloadConfig()
 {
 	root->setChild( backgroundPosition, createBackground() );
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator i = in_nodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator i = in_nodes->constBegin();
 
 	while ( i != in_nodes->constEnd() ) {
 		( *i )->reloadConfig();
@@ -1270,14 +1270,14 @@ void CoreGraph::computeGraphRotTransf()
 
 void CoreGraph::setNodeVisual( int index )
 {
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator iNode = in_nodes->begin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::iterator iNode = in_nodes->begin();
 
 	while ( iNode != in_nodes->end() ) {
 		iNode.value()->setVisual( index );
 		++iNode;
 	}
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::iterator iMetaNode = qmetaNodes->begin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::iterator iMetaNode = qmetaNodes->begin();
 
 	while ( iMetaNode != qmetaNodes->end() ) {
 		iMetaNode.value()->setVisual( index );
@@ -1289,14 +1289,14 @@ void CoreGraph::setNodeVisual( int index )
 
 void CoreGraph::setEdgeVisual( int index )
 {
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator iEdge = in_edges->begin();
+    QMap<QString, osg::ref_ptr<Data::Edge> >::iterator iEdge = in_edges->begin();
 
 	while ( iEdge != in_edges->end() ) {
 		iEdge.value()->setVisual( index );
 		++iEdge;
 	}
 
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >::iterator iMetaEdge = qmetaEdges->begin();
+    QMap<QString, osg::ref_ptr<Data::Edge> >::iterator iMetaEdge = qmetaEdges->begin();
 
 	while ( iMetaEdge != qmetaEdges->end() ) {
 		iMetaEdge.value()->setVisual( index );
@@ -1350,7 +1350,7 @@ void CoreGraph::addTranslateToGraphRotTransf( osg::Vec3d pos )
 	}
 	osg::ref_ptr<osg::Vec3Array> coordinates = new osg::Vec3Array;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >::const_iterator i = in_nodes->constBegin();
+    QMap<QString, osg::ref_ptr<Data::Node> >::const_iterator i = in_nodes->constBegin();
 
 	while ( i != in_nodes->constEnd() ) {
 		coordinates->push_back( ( *i )->targetPositionConstRef() );

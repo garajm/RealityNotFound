@@ -48,11 +48,11 @@ void SetRestrictionExecutor::execute_client()
 
 	*stream >> count;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph->getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph->getNodes();
 	for ( int i = 0; i < count; i++ ) {
 		*stream >> id;
-		if ( nodes->contains( id ) ) {
-			nodesToRestrict->append( *nodes->find( id ) );
+        if ( nodes->contains( QString::number( id ) ) ) {
+            nodesToRestrict->append( *nodes->find( QString::number( id ) ) );
 		}
 	}
 
@@ -134,11 +134,11 @@ void SetRestrictionExecutor::execute_server()
 
 	*stream >> count;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* nodes = currentGraph->getNodes();
+    QMap<QString, osg::ref_ptr<Data::Node> >* nodes = currentGraph->getNodes();
 	for ( int i = 0; i < count; i++ ) {
 		*stream >> id;
-		if ( nodes->contains( id ) ) {
-			nodesToRestrict->append( *nodes->find( id ) );
+        if ( nodes->contains( QString::number( id ) ) ) {
+            nodesToRestrict->append( *nodes->find( QString::number( id ) ) );
 		}
 	}
 

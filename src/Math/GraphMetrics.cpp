@@ -9,7 +9,7 @@ namespace MathModule {
 
 void GraphMetrics::computeGraphMetrics( Data::Graph* activeGraph )
 {
-	QMutableMapIterator<qlonglong, osg::ref_ptr<Data::Node> > i( *activeGraph->getNodes() );
+    QMutableMapIterator<QString, osg::ref_ptr<Data::Node> > i( *activeGraph->getNodes() );
 
 	int numVertices = activeGraph->getNodes()->size();
 	QVector<QLinkedList<osg::ref_ptr<Data::Node> > >**   paths;
@@ -35,9 +35,9 @@ void GraphMetrics::computeGraphMetrics( Data::Graph* activeGraph )
 
 		// get all shortest paths
 		DjikstraAlg* alg = new DjikstraAlg( activeGraph );
-		QMap<qlonglong, qlonglong> shortestPaths = alg->execute( i.value() );
+        QMap<QString, qlonglong> shortestPaths = alg->execute( i.value() );
 
-		QMutableMapIterator<qlonglong, qlonglong> i2( shortestPaths );
+        QMutableMapIterator<QString, qlonglong> i2( shortestPaths );
 
 		paths[idx] = new QVector<QLinkedList<osg::ref_ptr<Data::Node> > > [numVertices];
 
@@ -62,7 +62,7 @@ void GraphMetrics::computeGraphMetrics( Data::Graph* activeGraph )
 		int idx2 = 0;
 
 		// get shortest paths to all nodes for node betweenness
-		QMutableMapIterator<qlonglong, osg::ref_ptr<Data::Node> > i3( *activeGraph->getNodes() );
+        QMutableMapIterator<QString, osg::ref_ptr<Data::Node> > i3( *activeGraph->getNodes() );
 		while ( i3.hasNext() ) {
 			i3.next();
 			paths[idx][idx2++] = alg->getAllPaths( i3.value() );

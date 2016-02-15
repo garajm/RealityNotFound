@@ -155,7 +155,7 @@ public:
 	{
 		this->camera = camera;
 
-		QMapIterator<qlonglong, osg::ref_ptr<Data::Edge> > i( *in_edges );
+        QMapIterator<QString, osg::ref_ptr<Data::Edge> > i( *in_edges );
 
 
 		while ( i.hasNext() ) {
@@ -217,7 +217,7 @@ public:
 	void setClustersOpacity( double opacity );
 	void setClustersShapeBoundary( int value );
 	void setCameraManipulator( CameraManipulator* cameraManipulator );
-	void createClusterGroup( QMap<qlonglong, osg::ref_ptr<Data::Cluster> > clusters );
+    void createClusterGroup( QMap<QString, osg::ref_ptr<Data::Cluster> > clusters );
 
 	Vwr::NodeGroup* getNodesGroup()
 	{
@@ -344,27 +344,27 @@ private:
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Node> > * in_nodes
 	    *  \brief graph nodes map
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* in_nodes;
+    QMap<QString, osg::ref_ptr<Data::Node> >* in_nodes;
 
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* in_refnodes;
+    QMap<QString, osg::ref_ptr<Data::Node> >* in_refnodes;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Edge> > * in_edges
 	    *  \brief graph edges map
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* in_edges;
+    QMap<QString, osg::ref_ptr<Data::Edge> >* in_edges;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Node> > * qmetaNodes
 	    *  \brief graph metanodes map
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* qmetaNodes;
+    QMap<QString, osg::ref_ptr<Data::Node> >* qmetaNodes;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Edge> > * qmetaEdges
 	    *  \brief graph metaedges map
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* qmetaEdges;
+    QMap<QString, osg::ref_ptr<Data::Edge> >* qmetaEdges;
 
 	/**
 	    *  Util::ApplicationConfig * appConf

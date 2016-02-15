@@ -587,8 +587,8 @@ void Manager::GraphManager::runTestCase( qint32 action )
 			Data::GraphLayout* gl2 = g->addLayout( "testCase1 layout 2" ); //pridanie layoutu
 			g->addLayout( "testCase1 layout 3" ); //pridanie layoutu
 			qDebug() << "layouty grafu: " << g->toString();
-			QMap<qlonglong,Data::GraphLayout*> layouts = g->getLayouts( &error );
-			foreach ( qlonglong i, layouts.keys() ) { //vypis layoutov
+            QMap<QString,Data::GraphLayout*> layouts = g->getLayouts( &error );
+            foreach ( QString i, layouts.keys() ) { //vypis layoutov
 				qDebug() << layouts.value( i )->toString();
 			}
 
@@ -611,11 +611,11 @@ void Manager::GraphManager::runTestCase( qint32 action )
 				}
 			}
 
-			QMap<qlonglong, osg::ref_ptr<Data::Node> >* gNodes = g->getNodes();
+            QMap<QString, osg::ref_ptr<Data::Node> >* gNodes = g->getNodes();
 			osg::ref_ptr<Data::Node> n1;
 			osg::ref_ptr<Data::Node> n2;
 			qlonglong iteration = 0;
-			foreach ( qlonglong i, gNodes->keys() ) {
+            foreach ( QString i, gNodes->keys() ) {
 				if ( iteration==0 ) {
 					n1 = gNodes->value( i );
 				}

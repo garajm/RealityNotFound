@@ -61,7 +61,7 @@ public:
 	    *  \param   metaEdges     provided metaEdges
 	    *  \param   types   provided types
 	    */
-	Graph( qlonglong graph_id, QString name, QSqlDatabase* conn, QMap<qlonglong,osg::ref_ptr<Data::Node> >* nodes, QMap<qlonglong,osg::ref_ptr<Data::Edge> >* edges,QMap<qlonglong,osg::ref_ptr<Data::Node> >* metaNodes, QMap<qlonglong,osg::ref_ptr<Data::Edge> >* metaEdges, QMap<qlonglong,Data::Type*>* types );
+    Graph( qlonglong graph_id, QString name, QSqlDatabase* conn, QMap<QString,osg::ref_ptr<Data::Node> >* nodes, QMap<QString,osg::ref_ptr<Data::Edge> >* edges,QMap<QString,osg::ref_ptr<Data::Node> >* metaNodes, QMap<QString,osg::ref_ptr<Data::Edge> >* metaEdges, QMap<QString,Data::Type*>* types );
 
 	/**
 	    *  \fn public overloaded constructor  Graph(qlonglong graph_id, QString name, qlonglong layout_id_counter, qlonglong ele_id_counter, QSqlDatabase* conn)
@@ -184,7 +184,7 @@ public:
 	    *  \param   error  error flag, will be set true, if the method encounters an error
 	    *  \return QMap<qlonglong,Data::GraphLayout*> graphLayouts belonging to the Graph
 	    */
-	QMap<qlonglong, Data::GraphLayout*> getLayouts( bool* error );
+    QMap<QString, Data::GraphLayout*> getLayouts( bool* error );
 
 	/**
 	    *  \fn public  addLayout(QString layout_name)
@@ -254,6 +254,8 @@ public:
 	    */
 	osg::ref_ptr<Data::Node> addNode( qlonglong id, QString name, Data::Type* type, osg::Vec3f position = osg::Vec3f( 0,0,0 ) );
 
+    osg::ref_ptr<Data::Node> addLuaNode( qlonglong id, QString name, QString identifier, Data::Type* type, osg::Vec3f position = osg::Vec3f( 0,0,0 ) );
+
 	/**
 	    *  \fn public  mergeNodes(QLinkedList<osg::ref_ptr<Data::Node> > * selectedNodes, osg::Vec3f position)
 	    *  \brief Merge selected nodes to one (meta) node
@@ -315,6 +317,8 @@ public:
 	    *  \return osg::ref_ptr the added Edge
 	    */
 	osg::ref_ptr<Data::Edge> addEdge( qlonglong id, QString name, osg::ref_ptr<Data::Node> srcNode, osg::ref_ptr<Data::Node> dstNode, Data::Type* type, bool isOriented );
+
+    osg::ref_ptr<Data::Edge> addLuaEdge( qlonglong id, QString name, QString identifier, osg::ref_ptr<Data::Node> srcNode, osg::ref_ptr<Data::Node> dstNode, Data::Type* type, bool isOriented );
 	/**
 	    *  \fn public getNestedEdgeType()
 	    *  \return nested edge type
@@ -460,7 +464,7 @@ public:
 	    *  \brief Returns QMap of the Edges assigned to the Graph
 	    *  \return QMap<qlonglong,osg::ref_ptr<Data::Edge> > * Edges assigned to the Graph
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* getEdges() const
+    QMap<QString, osg::ref_ptr<Data::Edge> >* getEdges() const
 	{
 		return edges;
 	}
@@ -471,7 +475,7 @@ public:
 	    *  \brief Returns QMap of the meta-Nodes assigned to the Graph
 	    *  \return QMap<qlonglong,osg::ref_ptr<Data::Node> > * meta-Nodes assigned to the Graph
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* getMetaNodes() const
+    QMap<QString, osg::ref_ptr<Data::Node> >* getMetaNodes() const
 	{
 		return metaNodes;
 	}
@@ -482,7 +486,7 @@ public:
 	    *  \brief Returns meta-Edges assigned to the Graph
 	    *  \return QMap<qlonglong,osg::ref_ptr<Data::Edge> > * meta-Edges assigned to the Graph
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* getMetaEdges() const
+    QMap<QString, osg::ref_ptr<Data::Edge> >* getMetaEdges() const
 	{
 		return metaEdges;
 	}
@@ -493,7 +497,7 @@ public:
 	    *  \brief Returns QMap of the Types assigned to the Graph
 	    *  \return QMap<qlonglong,Data::Type*> * Tyeps assigned to the Graph
 	    */
-	QMap<qlonglong, Data::Type*>* getTypes() const
+    QMap<QString, Data::Type*>* getTypes() const
 	{
 		return types;
 	}
@@ -849,7 +853,7 @@ private:
 	    *  QMap<qlonglong,Data::GraphLayout*> layouts
 	    *  \brief GraphLayouts of the Graph
 	    */
-	QMap<qlonglong, Data::GraphLayout*> layouts;
+    QMap<QString, Data::GraphLayout*> layouts;
 
 
 	/**
@@ -863,19 +867,19 @@ private:
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Node> > newNodes
 	    *  \brief New Nodes that have been added to the Graph but are not yet in database
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Node> > newNodes;
+    QMap<QString, osg::ref_ptr<Data::Node> > newNodes;
 
 	/**
 	    *  QMap<qlonglong,Data::Type*> newTypes
 	    *  \brief New Types that have been added to the Graph but are not yet in database
 	    */
-	QMap<qlonglong, Data::Type*> newTypes;
+    QMap<QString, Data::Type*> newTypes;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Edge> > newEdges
 	    *  \brief New Edges that have been added to the Graph but are not yet in database
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> > newEdges;
+    QMap<QString, osg::ref_ptr<Data::Edge> > newEdges;
 
 	QSet<Data::Node*> nestedNodes;
 
@@ -889,19 +893,19 @@ private:
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Edge> > * edges
 	    *  \brief Edges in the Graph
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* edges;
+    QMap<QString, osg::ref_ptr<Data::Edge> >* edges;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Node> > * metaNodes
 	    *  \brief Meta-Nodes in the Graph
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Node> >* metaNodes;
+    QMap<QString, osg::ref_ptr<Data::Node> >* metaNodes;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Edge> > * metaEdges
 	    *  \brief Meta-Edges in the Graph
 	    */
-	QMap<qlonglong, osg::ref_ptr<Data::Edge> >* metaEdges;
+    QMap<QString, osg::ref_ptr<Data::Edge> >* metaEdges;
 
 	QList<QSet<Data::Node*> > nestetSubGraphs;
 
@@ -909,7 +913,7 @@ private:
 	    *  QMap<qlonglong,Data::Type*> * types
 	    *  \brief Types in the Graph
 	    */
-	QMap<qlonglong, Data::Type*>* types;
+    QMap<QString, Data::Type*>* types;
 
 	/**
 	    *  bool frozen
@@ -945,25 +949,25 @@ private:
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Edge> > edgesByType
 	    *  \brief Edges in the Graph sorted by their Type
 	    */
-	QMultiMap<qlonglong, osg::ref_ptr<Data::Edge> > edgesByType;
+    QMultiMap<QString, osg::ref_ptr<Data::Edge> > edgesByType;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Node> > nodesByType
 	    *  \brief Nodes in the Graph sorted by their Type
 	    */
-	QMultiMap<qlonglong, osg::ref_ptr<Data::Node> > nodesByType;
+    QMultiMap<QString, osg::ref_ptr<Data::Node> > nodesByType;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Edge> > metaEdgesByType
 	    *  \brief Meta-Edges in the Graph sorted by their Type
 	    */
-	QMultiMap<qlonglong, osg::ref_ptr<Data::Edge> > metaEdgesByType;
+    QMultiMap<QString, osg::ref_ptr<Data::Edge> > metaEdgesByType;
 
 	/**
 	    *  QMap<qlonglong,osg::ref_ptr<Data::Node> > metaNodesByType
 	    *  \brief Meta-Nodes in the Graph sorted by their Type
 	    */
-	QMultiMap<qlonglong, osg::ref_ptr<Data::Node> > metaNodesByType;
+    QMultiMap<QString, osg::ref_ptr<Data::Node> > metaNodesByType;
 
 	/**
 	     * \brief Restrictions manager of this graph (object storing restrictions and providing
