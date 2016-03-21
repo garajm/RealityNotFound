@@ -174,10 +174,10 @@ osg::Vec3f Data::OsgNode::getCurrentPosition( bool calculateNew, float interpola
 
 		//osg::Vec3 directionVector = osg::Vec3(targetPosition.x(), targetPosition.y(), targetPosition.z()) * graphScale - currentPosition;
 		osg::Vec3 directionVector = osg::Vec3( mRestrictedTargetPosition.x(), mRestrictedTargetPosition.y(), mRestrictedTargetPosition.z() ) * graphScale - currentPosition;
-		this->currentPosition = osg::Vec3( directionVector * ( usingInterpolation ? interpolationSpeed : 1 ) + this->currentPosition );
+		this->currentPosition = directionVector * ( usingInterpolation ? interpolationSpeed : 1 ) + this->currentPosition;
 	}
 
-	return osg::Vec3( this->currentPosition );
+	return this->currentPosition;
 }
 
 void Data::OsgNode::setDrawableColor( osg::Vec4 color )
@@ -197,7 +197,7 @@ void Data::OsgNode::setDrawableColor( osg::Vec4 color )
 
 bool Data::OsgNode::setInvisible( bool invisible )
 {
-	setValue( static_cast<unsigned int>( graph->getNodeVisual() ), !invisible );
+	setValue( graph->getNodeVisual(), !invisible );
 	//-poriesit invisible pre label
 	return true;
 }
@@ -233,7 +233,7 @@ void Data::OsgNode::setRestrictedTargetPosition( const osg::Vec3f& position )
 
 //new
 
-void Data::OsgNode::setVisual( int index )
+void Data::OsgNode::setVisual( unsigned int index )
 {
 	setValue( INDEX_SQUARE, false );
 	setValue( INDEX_SPHERE, false );
@@ -329,6 +329,7 @@ osg::ref_ptr<osg::Geode> Data::OsgNode::createNodeSquare( const float& scaling, 
 	nodeQuad->setStateSet( bbState );
 
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    geode->setNodeMask(geode->getNodeMask() & ~0x2);
 	geode->addDrawable( nodeQuad );
 
 	return geode;
@@ -360,7 +361,7 @@ osg::ref_ptr<osg::Geode> Data::OsgNode::createNodeSphere( const float& scaling, 
 	nodeSphere->setUseDisplayList( false );
 
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-	geode->addDrawable( nodeSphere );
+    geode->addDrawable( nodeSphere );
 
 	return geode;
 }
@@ -400,6 +401,7 @@ osg::ref_ptr<osg::Geode> Data::OsgNode::createLabel( const float& scale, QString
 //    label->setBackdropOffset(0.05f);
 
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    geode->setNodeMask(geode->getNodeMask() & ~0x2);
 	geode->addDrawable( label );
 
 	return geode;

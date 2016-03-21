@@ -187,10 +187,10 @@ void Data::Edge::updateCoordinates( osg::Vec3 srcPos, osg::Vec3 dstPos )
 			rotation->push_back( direction ^ diff );
 			angle = acos( ( direction * diff )/ diff.length() );
 
-			( ( osg::Cylinder* )( ( drawableCylinder )->getShape() ) )->setHeight( ( float )( length ) );
-			( ( osg::Cylinder* )( ( drawableCylinder )->getShape() ) )->setRadius( 2 );
-			( ( osg::Cylinder* )( ( drawableCylinder )->getShape() ) )->setCenter( center->at( 0 ) );
-			( ( osg::Cylinder* )( ( drawableCylinder )->getShape() ) )->setRotation( osg::Quat( angle, osg::Vec3( rotation->at( 0 ).x(), rotation->at( 0 ).y(), rotation->at( 0 ).z() ) ) );
+			( dynamic_cast<osg::Cylinder*>( ( drawableCylinder )->getShape() ) )->setHeight( static_cast<float>( length ) );
+			( dynamic_cast<osg::Cylinder*>( ( drawableCylinder )->getShape() ) )->setRadius( 2 );
+			( dynamic_cast<osg::Cylinder*>( ( drawableCylinder )->getShape() ) )->setCenter( center->at( 0 ) );
+			( dynamic_cast<osg::Cylinder*>( ( drawableCylinder )->getShape() ) )->setRotation( osg::Quat( angle, osg::Vec3( rotation->at( 0 ).x(), rotation->at( 0 ).y(), rotation->at( 0 ).z() ) ) );
 			drawableCylinder->setColor( getEdgeColor() );
 			drawableCylinder->dirtyDisplayList();
 		}
@@ -236,7 +236,7 @@ void Data::Edge::updateCoordinates( osg::Vec3 srcPos, osg::Vec3 dstPos )
 
 			osg::ref_ptr<osg::Vec3Array> pts = bezCurve->getPath();
 
-			unsigned int profileSize = ( unsigned int ) pts->size();
+			unsigned int profileSize = static_cast<unsigned int>( pts->size() );
 			unsigned int i, j;
 
 
@@ -285,6 +285,7 @@ osg::ref_ptr<osg::Geode> Data::Edge::createLabel( QString name )
 	label->setColor( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    geode->setNodeMask(geode->getNodeMask() & ~0x2);
 	geode->addDrawable( label );
 
 	return geode;
@@ -350,6 +351,7 @@ osg::ref_ptr<osg::Geode> Data::Edge::createEdgeQuad( osg::StateSet* bbState )
 	nodeQuad->setStateSet( bbState );
 
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    geode->setNodeMask(geode->getNodeMask() & ~0x2);
 	geode->addDrawable( nodeQuad );
 
 	return geode;
@@ -373,6 +375,7 @@ osg::ref_ptr<osg::Geode> Data::Edge::createEdgeCylinder( osg::StateSet* bbState 
 	nodeCylinder->getStateSet()->setRenderBinDetails( 11, "RenderBin" );
 
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    geode->setNodeMask(geode->getNodeMask() & ~0x2);
 	geode->addDrawable( nodeCylinder );
 
 	return geode;

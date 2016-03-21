@@ -106,7 +106,7 @@ public:
 	    */
 	static float getMetaStrength()
 	{
-		return static_cast<float>( METASTRENGTH );
+		return METASTRENGTH;
 	}
 
 
@@ -519,12 +519,12 @@ public:
 		frozen = val;
 	}
 
-	int getNodeVisual()
+	unsigned int getNodeVisual()
 	{
 		return nodeVisual;
 	}
 
-	void setNodeVisual( int index )
+	void setNodeVisual( unsigned int index )
 	{
 		nodeVisual = index;
 	}
@@ -921,7 +921,7 @@ private:
 	    *  int nodeVisual
 	    *  \brief index of visual representation of node
 	    */
-	int nodeVisual;
+	unsigned int nodeVisual;
 
 	/**
 	    *  int edgeVisual

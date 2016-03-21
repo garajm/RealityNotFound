@@ -26,7 +26,8 @@
 #endif
 
 #ifdef LEAP_FOUND
-#include "Leap/LeapThread.h"
+#include "LeapLib/LeapThread.h"
+#include "Leap/CustomCameraManipulator.h"
 #endif
 
 #include <qtcolorpicker.h>
@@ -220,7 +221,26 @@ public slots:
 	            *  \brief Show dialog to select file which will be opened
 	            */
 	void loadFile();
-
+/**
+     *  \fn public  loadexampleGraphBasic500
+     *  \brief Load basic 100 node graph
+     */
+void loadExampleGraphBasic100();
+/**
+    *  \fn public  loadexampleGraphBasic500
+    *  \brief Load basic 500 node graph
+    */
+void loadExampleGraphBasic500();
+/**
+    *  \fn public  loadexampleGraphVeolia
+    *  \brief Load Veolia graph
+    */
+void loadExampleGraphVeolia();
+/**
+    *  \fn public  loadexampleGraphLua
+    *  \brief Load basic lua graph
+    */
+void loadExampleGraphLua();
 	/**
 	            *  \fn public  loadFromGit
 	            *  \brief Show dialog to write path to git repo which will be loaded
@@ -616,6 +636,12 @@ public slots:
 	 */
 	void changeLifespan( int value );
 
+    //jurik
+    void lightClicked();
+    void shadowClicked();
+    void baseClicked();
+    //*****
+
 private:
 
 	/**
@@ -689,6 +715,28 @@ private:
 	    *  \brief Pointer to show info about software
 	    */
 	QAction* about;
+
+    /**
+        *  QAction * exampleGraphBasic100
+        *  \brief Pointer to load basic graph (100) from file
+        */
+    QAction* exampleGraphBasic100;
+    /**
+        *  QAction * exampleGraphBasic
+        *  \brief Pointer to load basic graph (500) from file
+        */
+    QAction* exampleGraphBasic500;
+
+    /**
+        *  QAction * exampleGraphVeolia
+        *  \brief Pointer to load Veolia graph from file
+        */
+    QAction* exampleGraphVeolia;
+    /**
+        *  QAction * exampleGraphLua
+        *  \brief Pointer to load basic lua graph from file
+        */
+    QAction* exampleGraphLua;
 
 	/**
 	    *  QPushButton * play
@@ -1120,6 +1168,12 @@ private:
 	    */
 	QMenu* help;
 
+    /**
+        *  QMenu * test
+        *  \brief Pointer to menu of tests
+        */
+    QMenu* examples;
+
 	/**
 	    *  QOSG::ViewerQT * viewerWidget
 	    *  \brief Ponter to viewer widget
@@ -1314,6 +1368,26 @@ private:
 		*  \brief Flag if edge bundling is running
 		*/
 	bool isEBPlaying;
+
+    //jurik
+    /**
+     *CheckBox for turning on custom light
+     *@brief chb_light
+     */
+    QCheckBox* chb_light;
+
+    /**
+     *CheckBox for casting shadows of graph
+     *@brief chb_shadow
+     */
+    QCheckBox* chb_shadow;
+
+    /**
+     *CheckBox for showing base
+     *@brief chb_base
+     */
+    QCheckBox* chb_base;
+    //*****
 
 public:
 
