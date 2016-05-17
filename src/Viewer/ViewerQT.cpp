@@ -16,7 +16,7 @@ QOSG::ViewerQT::ViewerQT( QWidget* parent , const char* name , const QGLWidget* 
 
 	appConf = Util::ApplicationConfig::get();
 
-	osg::DisplaySettings::instance()->setStereo( appConf->getValue( "Viewer.Display.Stereoscopic" ).toInt() );
+	osg::DisplaySettings::instance()->setStereo( ( appConf->getValue( "Viewer.Display.Stereoscopic" ).toInt() ? true : false ) );
 	osg::DisplaySettings::instance()->setStereoMode( osg::DisplaySettings::ANAGLYPHIC );
 
 	getCamera()->setViewport( new osg::Viewport( 0,0,width(),height() ) );
@@ -37,7 +37,9 @@ QOSG::ViewerQT::ViewerQT( QWidget* parent , const char* name , const QGLWidget* 
 	setCameraManipulator( manipulator );
 
 	// Gloger: background to white color after disabling skybox
-	getCamera()->setClearColor( osg::Vec4( 0, 0, 0, 1 ) );
+//	getCamera()->setClearColor( osg::Vec4( 0, 0, 0, 1 ) );
+//    getCamera()->setClearColor( osg::Vec4( 0.85, 0.85, 0.85, 1 ) );
+    getCamera()->setClearColor( osg::Vec4( 1, 1, 1, 1 ) );
 	getCamera()->setViewMatrixAsLookAt( osg::Vec3d( -10, 0, 0 ), osg::Vec3d( 0, 0, 0 ), osg::Vec3d( 0, 1, 0 ) );
 
 	setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
@@ -62,7 +64,7 @@ void QOSG::ViewerQT::reloadConfig()
 	manipulator->setMaxSpeed( appConf->getValue( "Viewer.CameraManipulator.MaxSpeed" ).toFloat() );
 	manipulator->setTrackballSize( appConf->getValue( "Viewer.CameraManipulator.Sensitivity" ).toFloat() );
 
-	osg::DisplaySettings::instance()->setStereo( appConf->getValue( "Viewer.Display.Stereoscopic" ).toInt() );
+	osg::DisplaySettings::instance()->setStereo( ( appConf->getValue( "Viewer.Display.Stereoscopic" ).toInt() ? true : false ) );
 }
 
 void QOSG::ViewerQT::paintGL()

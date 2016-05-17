@@ -10,6 +10,13 @@
 
 #include "GitLib/GitEvolutionGraph.h"
 #include "GitLib/GitVersion.h"
+#include "GitLib/GitUtils.h"
+#include "GitLib/GitEvolutionGraphManager.h"
+#include "GitLib/GitMetaData.h"
+#include "GitLib/GitMetrics.h"
+#include "Repository/Git/GitLuaGraphAnalyzer.h"
+#include "Repository/Git/GitLuaGraphVisualizer.h"
+#include "Repository/Git/GitLuaGraphUtils.h"
 
 #include "Viewer/CoreGraph.h"
 #include "Viewer/CameraManipulator.h"
@@ -46,12 +53,14 @@
 #include "LuaGraph/FullHyperGraphVisualizer.h"
 #include "LuaGraph/HyperGraphVisualizer.h"
 #include "LuaGraph/SimpleGraphVisualizer.h"
+#include "LuaGraph/GitGraphVisualizer.h"
 
 #include "Diluculum/LuaState.hpp"
 #include <LuaGraph/LuaGraphTreeModel.h>
 
 #include <iostream>
 #include <osg/ref_ptr>
+#include <string>
 
 #ifdef OPENCV_FOUND
 #include "OpenCV/OpenCVCore.h"
@@ -60,7 +69,6 @@
 #ifdef OPENCV_FOUND
 #ifdef OPENNI2_FOUND
 #include "Kinect/KinectCore.h"
-#include "Kinect/RansacSurface/Ransac.h"
 #endif
 #endif
 
@@ -132,7 +140,7 @@ CoreWindow::CoreWindow( QWidget* parent, Vwr::CoreGraph* coreGraph, QApplication
 					  viewerWidget->getCameraManipulator(), SLOT( setCameraCanRot( bool ) ) );
 
 	Lua::LuaInterface::getInstance()->executeFile( "main.lua" );
-	viewerWidget->getPickHandler()->setSelectionObserver( this );
+    viewerWidget->getPickHandler()->setSelectionObserver( this );
 
 	QObject::connect( viewerWidget->getCameraManipulator(), SIGNAL( sendTranslatePosition( osg::Vec3d ) ),
 					  this->coreGraph, SLOT( translateGraph( osg::Vec3d ) ) );
@@ -262,7 +270,8 @@ void CoreWindow::createActions()
 
 	loadFunctionCallButton->setToolTip( "Load function calls" );
 	loadFunctionCallButton->setFocusPolicy( Qt::NoFocus );
-	connect( loadFunctionCallButton, SIGNAL( clicked() ), this, SLOT( loadFunctionCall() ) );
+//    QString empty = "";
+    connect( loadFunctionCallButton, SIGNAL( clicked() ), this, SLOT( loadFunctionCall( ) ) );
 
 	browsersGroupingButton = new QPushButton();
 	browsersGroupingButton->setIcon( QIcon( "../share/3dsoftviz/img/gui/grouping.png" ) );
@@ -271,7 +280,7 @@ void CoreWindow::createActions()
 
 	browsersGroupingButton->setCheckable( true );
 	browsersGroupingButton->setFocusPolicy( Qt::NoFocus );
-	connect( browsersGroupingButton, SIGNAL( clicked( bool ) ), this, SLOT( browsersGroupingClicked( bool ) ) );
+    connect( browsersGroupingButton, SIGNAL( clicked( bool ) ), this, SLOT( browsersGroupingClicked( bool ) ) );
 
 	filterNodesEdit = new QLineEdit();
 	filterEdgesEdit = new QLineEdit();
@@ -690,11 +699,6 @@ void CoreWindow::createActions()
 	b_git_diff->setFocusPolicy( Qt::NoFocus );
 	connect( b_git_diff, SIGNAL( clicked() ), this, SLOT( getDiffInfo() ) );
 
-	b_git_lua_graph = new QPushButton();
-	b_git_lua_graph->setText( "Create lua evoGraph" );
-	b_git_lua_graph->setToolTip( "Creates evolution graph from lua" );
-	b_git_lua_graph->setFocusPolicy( Qt::NoFocus );
-	connect( b_git_lua_graph, SIGNAL( clicked() ), this, SLOT( createEvolutionLuaGraph() ) );
 
 	b_info_version = new QPushButton();
 	b_info_version->setText( "i" );
@@ -709,7 +713,7 @@ void CoreWindow::createActions()
 	evolutionSlider->setTickPosition( QSlider::NoTicks );
 	evolutionSlider->setValue( 0 );
 	evolutionSlider->setFocusPolicy( Qt::NoFocus );
-	evolutionSlider->setDisabled( false );
+    evolutionSlider->setDisabled( true );
 	connect( evolutionSlider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderVersionValueChanged( int ) ) );
 
 	labelEvolutionSlider =  new QLabel( this );
@@ -721,6 +725,25 @@ void CoreWindow::createActions()
 
 	evolutionTimer = new QTimer( this );
 	connect( evolutionTimer, SIGNAL( timeout() ), this, SLOT( move() ) );
+
+    chb_git_changeCommits = new QCheckBox( tr( "Change commits" ) );
+    chb_git_changeCommits->setChecked( true );
+    connect( chb_git_changeCommits, SIGNAL( clicked( bool ) ), this, SLOT( changeCommits( bool ) ) );
+
+    cb_git_evoVisualizeMethod = new QComboBox();
+    cb_git_evoVisualizeMethod->insertItems( 0, ( QStringList() << "LuaStats" << "Difference" << "Changes" ) );
+    cb_git_evoVisualizeMethod->setFocusPolicy( Qt::NoFocus );
+    connect( cb_git_evoVisualizeMethod, SIGNAL( currentIndexChanged( int ) ), this, SLOT( changeEvolutionVisualization( int ) ) );
+
+    cb_git_authors = new QComboBox();
+    cb_git_authors->insertItems( 0, ( QStringList() << "All" << "Authors" << "Structure") );
+    cb_git_authors->setFocusPolicy( Qt::NoFocus );
+    connect( cb_git_authors, SIGNAL( currentIndexChanged( int ) ), this, SLOT( changeEvolutionFilterOption( int ) ) );
+
+    cb_git_files = new QComboBox();
+    cb_git_files->insertItems( 0, ( QStringList() << "All" ) );
+    cb_git_files->setFocusPolicy( Qt::NoFocus );
+    connect( cb_git_files, SIGNAL( currentIndexChanged( int ) ), this, SLOT( changeEvolutionFilterSpecificOption( int ) ) );
 	// garaj end
 }
 
@@ -1100,11 +1123,6 @@ QWidget* CoreWindow::createMoreFeaturesTab( QFrame* line )
 	b_start_kinect->setMaximumWidth( 136 );
 	lMore->addRow( b_start_kinect );
 	connect( b_start_kinect, SIGNAL( clicked() ), this, SLOT( createKinectWindow() ) );
-	b_start_ransac = new QPushButton();
-	b_start_ransac->setText( "Start calculate surface" );
-	b_start_ransac->setMaximumWidth( 136 );
-	lMore->addRow( b_start_ransac );
-	connect( b_start_ransac, SIGNAL( clicked() ), this, SLOT( calculateRansac() ) );
 #endif
 #endif
 
@@ -1140,17 +1158,39 @@ QWidget* CoreWindow::createMoreFeaturesTab( QFrame* line )
 	lMore->addRow( b_start_gloves );
 	connect( b_start_gloves, SIGNAL( clicked() ), this, SLOT( startGlovesRecognition() ) );
 #endif
-
+/*
 	line = createLine();
 	lMore->addRow( line );
 	lMore->addRow( new QLabel( tr( "Evolution Graph" ) ) );
 	lMore->addRow( new QLabel( ( tr( "Life span:" ) ) ), evolutionLifespanSpinBox );
 	lMore->addRow( b_git_diff );
-	lMore->addRow( b_git_lua_graph );
-
+    lMore->addRow( chb_git_changeCommits );
+    lMore->addRow( cb_git_evoVisualizeMethod );
+    lMore->addRow( cb_git_authors );
+    lMore->addRow( cb_git_files );
+*/
 	wMore->setLayout( lMore );
 
 	return wMore;
+}
+
+QWidget* CoreWindow::createEvolutionTab( QFrame* line )
+{
+    QWidget* wMore = new QWidget();
+    QFormLayout* lMore = new QFormLayout( wMore );
+    lMore->setContentsMargins( 1,1,1,1 );
+    lMore->setSpacing( 2 );
+
+    lMore->addRow( new QLabel( ( tr( "Life span:" ) ) ), evolutionLifespanSpinBox );
+//    lMore->addRow( b_git_diff );
+    lMore->addRow( chb_git_changeCommits );
+    lMore->addRow( cb_git_evoVisualizeMethod );
+    lMore->addRow( cb_git_authors );
+    lMore->addRow( cb_git_files );
+
+    wMore->setLayout( lMore );
+
+    return wMore;
 }
 
 void CoreWindow::createGraphSlider()
@@ -1166,7 +1206,7 @@ void CoreWindow::createGraphSlider()
 void CoreWindow::createSelectionComboBox()
 {
 	selectionTypeComboBox = new QComboBox();
-	selectionTypeComboBox->insertItems( 0,( QStringList() << "All" << "Node" << "Edge" << "Cluster" ) );
+    selectionTypeComboBox->insertItems( 0, ( QStringList() << "All" << "Node" << "Edge" << "Cluster" ) );
 	selectionTypeComboBox->setFocusPolicy( Qt::NoFocus );
 	connect( selectionTypeComboBox,SIGNAL( currentIndexChanged( int ) ),this,SLOT( selectionTypeComboBoxChanged( int ) ) );
 }
@@ -1183,6 +1223,8 @@ void CoreWindow::createLeftToolBar()
 
 	QWidget* wClustering = createClusteringTab( line );
 
+    QWidget* wEvolution = createEvolutionTab( line );
+
 	QWidget* wMore = createMoreFeaturesTab( line );
 
 	toolBox = new QToolBox();
@@ -1192,6 +1234,7 @@ void CoreWindow::createLeftToolBar()
 	toolBox->addItem( wConstraints, tr( "Constraints" ) );
 	toolBox->addItem( wClustering, tr( "Clustering" ) );
 	toolBox->addItem( wManage, tr( "Connections" ) );
+    toolBox->addItem( wEvolution, tr( "Evolution" ) );
 	toolBox->addItem( wMore, tr( "More features" ) );
 	toolBar = new QToolBar( "Tools",this );
 
@@ -1524,7 +1567,7 @@ void CoreWindow::loadFile()
 {
 
 	QFileDialog dialog;
-	dialog.setDirectory( "../share/3dsoftviz" );
+	dialog.setDirectory( "../share/3dsoftviz/graphExamples" );
 
 
 	// Duransky start - vynulovanie vertigo rovin pri nacitani noveho grafu
@@ -1564,28 +1607,120 @@ void CoreWindow::loadFile()
 
 void CoreWindow::loadFromGit()
 {
-	layout->pause();
-	coreGraph->setNodesFreezed( true );
+    chb_git_changeCommits->setDisabled( true );
 	QString lPath = QFileDialog::getExistingDirectory( this, tr( "Select git dir" ) );
 
-	if ( lPath != "" ) {
+    if( Manager::GraphManager::getInstance()->getActiveEvolutionGraph() != NULL ) {
+        delete Manager::GraphManager::getInstance()->getActiveEvolutionGraph();
+    }
 
-		if ( Manager::GraphManager::getInstance()->loadGraphFromGit( lPath ) ) {
+//    Manager::GraphManager::getInstance()->createNewGraph( "new graph" );
+
+	if ( lPath != "" ) {
+        if ( Manager::GraphManager::getInstance()->loadEvolutionGraphFromGit( lPath ) ) {
+            qDebug() << Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getFilePath();
+//            Manager::GraphManager::getInstance()->importEvolutionGraph( lPath );
+            if( chb_git_changeCommits->isChecked() ) {
+                Repository::Git::GitUtils::changeCommit( Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersion( 0 )->getCommitId(), lPath );
+//                loadFunctionCall();
+                loadLuaGraph();
+
+                Lua::LuaGraph::getInstance()->loadEvoGraph( lPath );
+
+                // ak este dana verzia nebola zanalyzovana, tak ju zanalyzuj a uloz do evolution grafu
+                if( !Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersion( 0 )->getIsLoaded() ) {
+                    Repository::Git::GitLuaGraphAnalyzer analyzer = Repository::Git::GitLuaGraphAnalyzer( Lua::LuaGraph::getInstance(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+                    analyzer.setVersionNumber( 0 );
+                    analyzer.analyze();
+                }
+
+                layout->pause();
+                coreGraph->setNodesFreezed( true );
+
+//                qDebug() << "Current index = " << this->cb_git_evoVisualizeMethod->currentIndex() << this->cb_git_evoVisualizeMethod->itemText(this->cb_git_evoVisualizeMethod->currentIndex());
+                Repository::Git::GitLuaGraphVisualizer visualizer = Repository::Git::GitLuaGraphVisualizer( Manager::GraphManager::getInstance()->getActiveGraph(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph(), this->coreGraph->getCamera(), this->cb_git_evoVisualizeMethod->currentIndex() );
+                visualizer.setFilterAuthor( cb_git_authors->currentText() );
+                visualizer.setFilterFile( cb_git_files->currentText() );
+                visualizer.visualize( true );
+//                Lua::LuaGraphVisualizer* visualizer = new Lua::GitGraphVisualizer( Manager::GraphManager::getInstance()->getActiveGraph(), coreGraph->getCamera() );
+//                visualizer->visualize();
+
+            } else {
+                Manager::GraphManager::getInstance()->importEvolutionGraph( lPath );
+            }
+
+            evolutionSlider->setValue( 0 );
 			evolutionSlider->setRange( 0, Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersions().size() - 1 );
 			QString pos = QString::number( evolutionSlider->value() + 1 );  // kedze list zacina od 0 treba pripocitat +1
 			labelEvolutionSlider->setText( "  " + pos + " . verzia" );
-			b_run_evolution->setDisabled( false );
+            if( !chb_git_changeCommits->isChecked() ) {
+                b_run_evolution->setDisabled( false );
+                evolutionSlider->setEnabled( true );
+            }
 			b_next_version->setDisabled( false );
-//            Manager::GraphManager::getInstance()->getActiveGraph()->setCurrentVersion( 0 );
+            Manager::GraphManager::getInstance()->getActiveGraph()->setCurrentVersion( 0 );
 
+            //
+            if( cb_git_authors->currentIndex() != 0 ) {
+                if( cb_git_authors->currentText() == "Authors" ) {
+                    QString currentText = cb_git_files->currentText();
+
+                    Repository::Git::GitMetrics metrics = Repository::Git::GitMetrics( Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+                    QStringList list = QStringList( "All" );
+
+                    int newCurrentIndex = 0;
+
+                    int iter = 1;
+                    foreach( QString item ,metrics.getAuthorList( Manager::GraphManager::getInstance()->getActiveGraph()->getCurrentVersion() + 1 ) ) {
+                        list << item;
+                        if( item == currentText ) {
+                            newCurrentIndex = iter;
+                        }
+                        iter++;
+                    }
+                    cb_git_files->clear();
+                    cb_git_files->insertItems( 0, list );
+                    cb_git_files->setCurrentIndex( newCurrentIndex );
+                }
+            }
+            //
 		}
 		viewerWidget->getCameraManipulator()->home();
 	}
 
 	if ( isPlaying ) {
+        labelOnOff( true );
 		layout->play();
 		coreGraph->setNodesFreezed( false );
 	}
+}
+
+void CoreWindow::loadLuaGraph() {
+    QString file = "";
+
+    Repository::Git::GitEvolutionGraph* evolutionGraph = Manager::GraphManager::getInstance()->getActiveEvolutionGraph();
+
+    if( evolutionGraph != NULL ) {
+        file = evolutionGraph->getFilePath();
+    } else {
+        return;
+    }
+
+    Lua::LuaInterface* lua = Lua::LuaInterface::getInstance();
+
+    Diluculum::LuaValueList path;
+    path.push_back( file.toStdString() );
+    QString createGraph[] = {"function_call_graph", "extractGraph"};
+    lua->callFunction( 2, createGraph, path );
+    lua->getLuaState()->doString( "getGraph = function_call_graph.getGraph" );
+    Lua::LuaInterface::getInstance()->getLuaState()->doString( "getFullGraph = getGraph" );
+
+    Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
+
+    if( currentGraph == NULL ) {
+        currentGraph = Manager::GraphManager::getInstance()->createNewGraph( "LuaGraph" );
+    }
+
 }
 
 void CoreWindow::labelOnOff( bool )
@@ -1603,7 +1738,7 @@ void CoreWindow::labelOnOff( bool )
 
 		nodeLabelsVisible = edgeLabelsVisible = !state;
 
-		coreGraph->setEdgeLabelsVisible( !state );
+//		coreGraph->setEdgeLabelsVisible( !state );
 		coreGraph->setNodeLabelsVisible( !state );
 	}
 }
@@ -2396,7 +2531,7 @@ void CoreWindow::startEdgeBundling()
 			while ( iNode != currentGraph->getNodes()->end() ) {
 				( *iNode )->setFixed( true );
 				( *iNode )->setDefaultColor();
-				iNode++;
+				++iNode;
 			}
 
 			//select all meta nodes and fix them
@@ -2404,12 +2539,12 @@ void CoreWindow::startEdgeBundling()
 			while ( iNode != currentGraph->getMetaNodes()->end() ) {
 				( *iNode )->setFixed( true );
 				( *iNode )->setDefaultColor();
-				iNode++;
+				++iNode;
 			}
 
 			//split edges
 			QString alpha = le_edgeBundlingalpha->text();
-			layout->setAlphaEdgeBundlingValue( alpha.toInt() );
+			layout->setAlphaEdgeBundlingValue( alpha.toFloat() );
 			int splitCount = 3;
 			currentGraph->splitAllEdges( splitCount );
 		}
@@ -2980,12 +3115,6 @@ void CoreWindow::createKinectWindow()
 
 	OpenCV::OpenCVCore::getInstance( NULL, this )->opencvInit();
 }
-
-void CoreWindow::calculateRansac()
-{
-	Kinect::Ransac* ransac= new Kinect::Ransac();
-	ransac->calculate();
-}
 #endif
 #endif
 
@@ -3472,7 +3601,7 @@ QOSG::ViewerQT* CoreWindow::GetViewerQt()
 
 void CoreWindow::closeEvent( QCloseEvent* event )
 {
-
+    delete Manager::GraphManager::getInstance()->getActiveEvolutionGraph();
 #ifdef OPENCV_FOUND
 	delete OpenCV::OpenCVCore::getInstance( NULL, this );
 #endif
@@ -3593,10 +3722,13 @@ void CoreWindow::createMetricsToolBar()
 
 void CoreWindow::loadFunctionCall()
 {
-	QString file = QFileDialog::getExistingDirectory( this, "Select lua project folder", "." );
-	if ( file == "" ) {
-		return;
-	}
+    QString file = QFileDialog::getExistingDirectory( this, "Select lua project folder", "." );
+
+    // ak sa predchadzajucou volbou neziskala cesta ku projektu, tak ukonci metodu
+    if( file == "" ) {
+        return;
+    }
+
 	std::cout << "You selected " << file.toStdString() << std::endl;
 	Lua::LuaInterface* lua = Lua::LuaInterface::getInstance();
 
@@ -3611,14 +3743,15 @@ void CoreWindow::loadFunctionCall()
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
 
 	if ( currentGraph != NULL ) {
-		Manager::GraphManager::getInstance()->closeGraph( currentGraph );
-	}
-	currentGraph = Manager::GraphManager::getInstance()->createNewGraph( "LuaGraph" );
+        Manager::GraphManager::getInstance()->closeGraph( currentGraph );
+    }
+    currentGraph = Manager::GraphManager::getInstance()->createNewGraph( "LuaGraph" );
+
 
 	layout->pause();
 	coreGraph->setNodesFreezed( true );
 
-	Lua::LuaGraphVisualizer* visualizer = new Lua::SimpleGraphVisualizer( currentGraph, coreGraph->getCamera() );
+    Lua::LuaGraphVisualizer* visualizer = visualizer = new Lua::SimpleGraphVisualizer( currentGraph, coreGraph->getCamera() );
 	visualizer->visualize();
 
 	coreGraph->reloadConfig();
@@ -3667,19 +3800,40 @@ void CoreWindow::onChange()
 	// <Change> Gloger start: added support for multiple node selection using browser visualization
 	QLinkedList<osg::ref_ptr<Data::Node> >* selected = viewerWidget->getPickHandler()->getSelectedNodes();
 
+    if( cb_git_evoVisualizeMethod->currentText() == "Difference" ) {
+        coreGraph->getBrowsersGroup()->setShowGit( true );
+    } else {
+        coreGraph->getBrowsersGroup()->setShowGit( false );
+    }
+
 	coreGraph->getBrowsersGroup()->setSelectedNodes( selected );
 	// qDebug() << "Selected nodes count: " << selected->size();
 
 
 	if ( selected->size() > 0 ) {
 		// Get last node model & display it in qt view
-		qlonglong lastNodeId = selected->last()->getId();
-		Lua::LuaNode* lastLuaNode = Lua::LuaGraph::getInstance()->getNodes()->value( lastNodeId );
-		// garaj start - ak nenaslo lastLuaNode, tak sposobovalo pad softveru
-		if ( lastLuaNode ) {
-			Lua::LuaGraphTreeModel* lastLuaModel = new Lua::LuaGraphTreeModel( lastLuaNode );
-			luaGraphTreeView->setModel( lastLuaModel );
-		}
+        qlonglong lastNodeId = 0;
+        Repository::Git::GitEvolutionGraph* evolutionGraph = Manager::GraphManager::getInstance()->getActiveEvolutionGraph();
+        if( evolutionGraph ) {
+            QString identifier = selected->last()->getLuaIdentifier();
+//            if( evolutionGraph->getLuaNodesMapping().contains( identifier ) ) {
+            if( evolutionGraph->getMetaDataFromIdentifier( identifier )->getLuaMapping() != -1 ) {
+//                lastNodeId = evolutionGraph->getLuaNodesMapping().value( identifier );
+                lastNodeId = evolutionGraph->getMetaDataFromIdentifier( identifier )->getLuaMapping();
+            }
+
+        } else {
+            lastNodeId = selected->last()->getId();
+        }
+
+        if( lastNodeId != 0 ) {
+            Lua::LuaNode* lastLuaNode = Lua::LuaGraph::getInstance()->getNodes()->value( lastNodeId );
+            // garaj start - ak nenaslo lastLuaNode, tak sposobovalo pad softveru
+            if ( lastLuaNode ) {
+                Lua::LuaGraphTreeModel* lastLuaModel = new Lua::LuaGraphTreeModel( lastLuaNode );
+                luaGraphTreeView->setModel( lastLuaModel );
+            }
+        }
 		// garaj end
 	}
 
@@ -3699,20 +3853,84 @@ bool CoreWindow::nextVersion()
 		b_previous_version->setDisabled( false );
 	}
 
-	evolutionLifespanSpinBox->setDisabled( true );
-	bool ok = true;
-	int value = evolutionSlider->value();
-	ok = Manager::GraphManager::getInstance()->nextVersion( layout );
-	value++;
-	QString pos =  QString::number( value + 1 );  // kedze list zacina od 0 treba pripocitat +1
-	labelEvolutionSlider->setText( "  " + pos + " . verzia" );
-	evolutionSlider->blockSignals( true );
-	evolutionSlider->setValue( value );
-	evolutionSlider->blockSignals( false );
+    bool ok = true;
+    int value = evolutionSlider->value();
+    evolutionLifespanSpinBox->setDisabled( true );
+    value++;
+    QString pos =  QString::number( value + 1 );  // kedze list zacina od 0 treba pripocitat +1
+    labelEvolutionSlider->setText( "  " + pos + " . verzia" );
+    evolutionSlider->blockSignals( true );
+    evolutionSlider->setValue( value );
+    evolutionSlider->blockSignals( false );
+
+    if( !chb_git_changeCommits->isChecked() ) {
+        ok = Manager::GraphManager::getInstance()->nextVersion( layout );
+    } else {
+        // ulozim si udaje o metrikach zo stareho lua graphu
+        Repository::Git::GitLuaGraphUtils luaUtils = Repository::Git::GitLuaGraphUtils( Lua::LuaGraph::getInstance(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+        luaUtils.fillMetricsMetaData();
+//        qDebug() << "Treba zavolat dalsi lua stromcek";
+        QString lPath =  Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getFilePath();
+        QString commitId = Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersion( value )->getCommitId();
+        Repository::Git::GitUtils::changeCommit( commitId, lPath );
+        //        loadFunctionCall();
+        loadLuaGraph();
+
+        Lua::LuaGraph::getInstance()->loadEvoGraph( lPath );
+
+        Manager::GraphManager::getInstance()->getActiveGraph()->setCurrentVersion( value );
+        if( !Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersion( value )->getIsLoaded() ) {
+
+            Repository::Git::GitLuaGraphAnalyzer analyzer = Repository::Git::GitLuaGraphAnalyzer( Lua::LuaGraph::getInstance(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+            analyzer.setVersionNumber( value );
+            analyzer.analyze();
+        }
+
+        layout->pause();
+        coreGraph->setNodesFreezed( true );
+
+        Repository::Git::GitLuaGraphVisualizer visualizer = Repository::Git::GitLuaGraphVisualizer( Manager::GraphManager::getInstance()->getActiveGraph(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph(), this->coreGraph->getCamera(), this->cb_git_evoVisualizeMethod->currentIndex() );
+        visualizer.setFilterAuthor( cb_git_authors->currentText() );
+        visualizer.setFilterFile( cb_git_files->currentText() );
+        visualizer.visualize( true );
+
+        //
+        if( cb_git_authors->currentIndex() != 0 ) {
+            if( cb_git_authors->currentText() == "Authors" ) {
+                QString currentText = cb_git_files->currentText();
+
+                Repository::Git::GitMetrics metrics = Repository::Git::GitMetrics( Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+                QStringList list = QStringList( "All" );
+
+                int newCurrentIndex = 0;
+
+                int iter = 1;
+                foreach( QString item ,metrics.getAuthorList( Manager::GraphManager::getInstance()->getActiveGraph()->getCurrentVersion() + 1 ) ) {
+                    list << item;
+                    if( item == currentText ) {
+                        newCurrentIndex = iter;
+                    }
+                    iter++;
+                }
+                cb_git_files->clear();
+                cb_git_files->insertItems( 0, list );
+                cb_git_files->setCurrentIndex( newCurrentIndex );
+            }
+        }
+        //
+
+        coreGraph->reloadConfig();
+        if ( isPlaying ) {
+            layout->play();
+            coreGraph->setNodesFreezed( false );
+        }
+
+    }
 
 	if ( value == evolutionSlider->maximum() ) {
 		b_next_version->setDisabled( true );
 	}
+
 
 	return ok;
 }
@@ -3725,17 +3943,52 @@ bool CoreWindow::previousVersion()
 	}
 
 	bool ok = true;
-	int value = evolutionSlider->value();
-	ok =  Manager::GraphManager::getInstance()->previousVersion( layout );
-	value--;
-	QString pos =  QString::number( value + 1 );  // kedze list zacina od 0 treba pripocitat +1
-	labelEvolutionSlider->setText( "  " + pos + " . verzia" );
-	evolutionSlider->blockSignals( true );
-	evolutionSlider->setValue( value );
-	evolutionSlider->blockSignals( false );
+    int value = evolutionSlider->value();
+    value--;
+    QString pos =  QString::number( value + 1 );  // kedze list zacina od 0 treba pripocitat +1
+    labelEvolutionSlider->setText( "  " + pos + " . verzia" );
+    evolutionSlider->blockSignals( true );
+    evolutionSlider->setValue( value );
+    evolutionSlider->blockSignals( false );
+
+    if( !chb_git_changeCommits->isChecked() ) {
+        ok =  Manager::GraphManager::getInstance()->previousVersion( layout );
+    } else {
+        // ulozim si udaje o metrikach zo stareho lua graphu
+        Repository::Git::GitLuaGraphUtils luaUtils = Repository::Git::GitLuaGraphUtils( Lua::LuaGraph::getInstance(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+        luaUtils.fillMetricsMetaData();
+//        qDebug() << "Treba zavolat predchadzajuci lua stromcek";
+        Manager::GraphManager::getInstance()->getActiveGraph()->setCurrentVersion( value );
+        QString lPath =  Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getFilePath();
+        QString commitId = Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersion( value )->getCommitId();
+        Repository::Git::GitUtils::changeCommit( commitId, lPath );
+        loadLuaGraph();
+        Lua::LuaGraph::getInstance()->loadEvoGraph( lPath );
+
+        if( !Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersion( value )->getIsLoaded() ) {
+            Repository::Git::GitLuaGraphAnalyzer analyzer = Repository::Git::GitLuaGraphAnalyzer( Lua::LuaGraph::getInstance(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+            analyzer.setVersionNumber( value );
+            analyzer.analyze();
+        }
+
+        layout->pause();
+        coreGraph->setNodesFreezed( true );
+
+//        qDebug() << "Current index = " << this->cb_git_evoVisualizeMethod->currentIndex() << this->cb_git_evoVisualizeMethod->itemText(this->cb_git_evoVisualizeMethod->currentIndex());
+        Repository::Git::GitLuaGraphVisualizer visualizer = Repository::Git::GitLuaGraphVisualizer( Manager::GraphManager::getInstance()->getActiveGraph(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph(), this->coreGraph->getCamera(), this->cb_git_evoVisualizeMethod->currentIndex() );
+        visualizer.visualize( false );
+
+        coreGraph->reloadConfig();
+        if ( isPlaying ) {
+            layout->play();
+            coreGraph->setNodesFreezed( false );
+        }
+    }
 
 	if ( value == evolutionSlider->minimum() ) {
-		evolutionLifespanSpinBox->setDisabled( false );
+        if( !chb_git_changeCommits->isChecked() ) {
+            evolutionLifespanSpinBox->setDisabled( false );
+        }
 		b_previous_version->setDisabled( true );
 	}
 
@@ -3747,7 +4000,9 @@ void CoreWindow::runEvolution()
 		// zastav evoluciu
 		b_run_evolution->setIcon( QIcon( "../share/3dsoftviz/img/gui/play.png" ) );
 		isRunning = false;
-		b_next_version->setDisabled( false );
+        if( evolutionSlider->value() != evolutionSlider->maximum() ) {
+            b_next_version->setDisabled( false );
+        }
 		b_previous_version->setDisabled( false );
 		evolutionTimer->stop();
 	}
@@ -3766,7 +4021,7 @@ void CoreWindow::runEvolution()
 void CoreWindow::move()
 {
 	int cursor = evolutionSlider->value();
-	int size = Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersions().size();
+    int size = evolutionSlider->maximum();
 
 	if ( cursor == ( size ) ) {
 		this->runEvolution();
@@ -3842,8 +4097,164 @@ void CoreWindow::getDiffInfo()
 	}
 }
 
+// zatial neviem ci je potrebne:D ale asi bude
+void CoreWindow::changeCommits( bool value ) {
+    qDebug() << chb_git_changeCommits->isChecked();
+    if( value ) {
+        b_run_evolution->setEnabled( false );
+        evolutionSlider->setEnabled( false );
+        b_faster_evolution->setEnabled( false );
+        b_slower_evolution->setEnabled( false );
+    }
+}
+
+void CoreWindow::changeEvolutionVisualization( int state ) {
+    if( state == 2 ) {
+       b_next_version->setDisabled( true );
+       b_previous_version->setDisabled( true );
+
+    } else {
+        b_next_version->setDisabled( false );
+       b_previous_version->setDisabled( false );
+    }
+
+    if( Manager::GraphManager::getInstance()->getActiveEvolutionGraph() ) {
+        if( state == 2 ) {
+            if( cb_git_authors->currentText() != "All" ) {
+                QString currentText = cb_git_files->currentText();
+                QStringList list;
+                int newCurrentIndex = 0;
+                Repository::Git::GitMetrics metrics = Repository::Git::GitMetrics( Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+
+                if( cb_git_authors->currentText() == "Authors" ) {
+
+                    list = QStringList( "All" );
+
+                    newCurrentIndex = 0;
+
+                    int iter = 1;
+                    foreach( QString item, metrics.getAuthorList( Manager::GraphManager::getInstance()->getActiveGraph()->getCurrentVersion() + 1 ) ) {
+                        list << item;
+                        if( item == currentText ) {
+                            newCurrentIndex = iter;
+                        }
+                        iter++;
+                    }
+                } else if( cb_git_authors->currentText() == "Structure" ) {
+                    list = QStringList() << "Files" << "Local Functions" << "Global Functions" << "Modules";
+
+                    newCurrentIndex = 3;
+
+                    int iter = 0;
+                    foreach( QString item, list ) {
+                        if( item == currentText ) {
+                            newCurrentIndex = iter;
+                            break;
+                        }
+                        iter++;
+                    }
+                }
+
+                cb_git_files->clear();
+                cb_git_files->insertItems( 0, list );
+                cb_git_files->setCurrentIndex( newCurrentIndex );
+            }
+        }
+
+        Repository::Git::GitLuaGraphVisualizer visualizer = Repository::Git::GitLuaGraphVisualizer( Manager::GraphManager::getInstance()->getActiveGraph(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph(), this->coreGraph->getCamera(), state );
+        visualizer.setFilterAuthor( cb_git_authors->currentText() );
+        visualizer.setFilterFile( cb_git_files->currentText() );
+        visualizer.changeNodeRepresentation();
+    }
+}
+
+void CoreWindow::changeEvolutionFilterOption( int state ) {
+    if( Manager::GraphManager::getInstance()->getActiveEvolutionGraph() ) {
+        if( state != 0 ) {
+            QString currentText = cb_git_files->currentText();
+            QStringList list;
+            int newCurrentIndex = 0;
+            Repository::Git::GitMetrics metrics = Repository::Git::GitMetrics( Manager::GraphManager::getInstance()->getActiveEvolutionGraph() );
+
+            if( state == 1 ) {
+                list = QStringList( "All" );
+
+                newCurrentIndex = 0;
+
+                int iter = 1;
+                foreach( QString item ,metrics.getAuthorList( Manager::GraphManager::getInstance()->getActiveGraph()->getCurrentVersion() + 1 ) ) {
+                    list << item;
+                    if( item == currentText ) {
+                        newCurrentIndex = iter;
+                    }
+                    iter++;
+                }
+
+            } else if( state == 2 ) {
+                list = QStringList() << "Files" << "Local Functions" << "Global Functions" << "Modules";
+
+                newCurrentIndex = 3;
+
+                int iter = 0;
+                foreach( QString item, list ) {
+                    if( item == currentText ) {
+                        newCurrentIndex = iter;
+                        break;
+                    }
+                    iter++;
+                }
+            }
+
+            cb_git_files->clear();
+            cb_git_files->insertItems( 0, list );
+            cb_git_files->setCurrentIndex( newCurrentIndex );
+
+            Repository::Git::GitLuaGraphVisualizer visualizer = Repository::Git::GitLuaGraphVisualizer( Manager::GraphManager::getInstance()->getActiveGraph(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph(), this->coreGraph->getCamera(), cb_git_evoVisualizeMethod->currentIndex() );
+            visualizer.setFilterAuthor( cb_git_authors->currentText() );
+            visualizer.setFilterFile( cb_git_files->currentText() );
+            visualizer.changeNodeRepresentation();
+        }
+    }
+
+}
+
+void CoreWindow::changeEvolutionFilterSpecificOption( int state ) {
+    if( Manager::GraphManager::getInstance()->getActiveEvolutionGraph() ) {
+        Repository::Git::GitLuaGraphVisualizer visualizer = Repository::Git::GitLuaGraphVisualizer( Manager::GraphManager::getInstance()->getActiveGraph(), Manager::GraphManager::getInstance()->getActiveEvolutionGraph(), this->coreGraph->getCamera(), cb_git_evoVisualizeMethod->currentIndex() );
+        visualizer.setFilterAuthor( cb_git_authors->currentText() );
+        visualizer.setFilterFile( cb_git_files->currentText() );
+        visualizer.changeNodeRepresentation();
+    }
+}
+
 void CoreWindow::createEvolutionLuaGraph()
 {
+    QString file = Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getFilePath();
+
+    Repository::Git::GitUtils::changeCommit( Manager::GraphManager::getInstance()->getActiveEvolutionGraph()->getVersion( 0 )->getCommitId(), file );
+
+    std::cout << "You selected " << file.toStdString() << std::endl;
+    Lua::LuaInterface* lua = Lua::LuaInterface::getInstance();
+
+
+    Diluculum::LuaValueList path;
+    path.push_back( file.toStdString() );
+    QString createGraph[] = {"function_call_graph", "extractGraph"};
+    lua->callFunction( 2, createGraph, path );
+    lua->getLuaState()->doString( "getGraph = function_call_graph.getGraph" );
+    Lua::LuaInterface::getInstance()->getLuaState()->doString( "getFullGraph = getGraph" );
+
+    Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
+
+
+
+
+    Lua::LuaGraphVisualizer* visualizer = new Lua::GitGraphVisualizer( currentGraph, coreGraph->getCamera() );
+    visualizer->visualize();
+
+
+
+   /*
 	Lua::LuaInterface* lua = Lua::LuaInterface::getInstance();
 
 	Data::Graph* currentGraph = Manager::GraphManager::getInstance()->getActiveGraph();
@@ -3961,6 +4372,7 @@ void CoreWindow::createEvolutionLuaGraph()
 		layout->play();
 		coreGraph->setNodesFreezed( false );
 	}
+    */
 }
 
 } // namespace QOSG

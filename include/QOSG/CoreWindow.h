@@ -5,25 +5,6 @@
 #ifndef QOSG_CORE_WINDOW
 #define QOSG_CORE_WINDOW 1
 
-#ifdef __APPLE__
-#include <qstringlist.h>
-#else
-#include <Qt/qstringlist.h>
-#endif
-#include <QOSG/qtcolorpicker.h>
-
-#include <QMainWindow>
-#include <QToolBar>
-#include <QApplication>
-#include <QIcon>
-#include <QAction>
-#include <QMenu>
-#include <QMenuBar>
-#include <QtGui>
-#include <QLineEdit>
-#include <QToolBox>
-#include <QString>
-
 #include <Viewer/SelectionObserver.h>
 
 #include "Layout/ShapeGetter.h"
@@ -32,6 +13,8 @@
 #include "Layout/ShapeGetter_Circle_ByThreeNodes.h"
 #include "Layout/ShapeGetter_SpherePlane_ByThreeNodes.h"
 //#include "Viewer/CameraManipulator.h"
+
+#include "Clustering/Clusterer.h"
 
 #ifdef SPEECHSDK_FOUND
 #include "Speech/KinectSpeechThread.h"
@@ -46,7 +29,24 @@
 #include "Leap/LeapThread.h"
 #endif
 
-#include "Clustering/Clusterer.h"
+#include <qtcolorpicker.h>
+
+#ifdef __APPLE__
+#include <qstringlist.h>
+#else
+#include <Qt/qstringlist.h>
+#endif
+#include <QMainWindow>
+#include <QToolBar>
+#include <QApplication>
+#include <QIcon>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
+#include <QtGui>
+#include <QLineEdit>
+#include <QToolBox>
+#include <QString>
 
 namespace Layout {
 class LayoutThread;
@@ -104,6 +104,12 @@ public slots:
 	            *  \brief Show the dialog to load graph from database
 	            */
 	void showLoadGraph();
+
+    void changeEvolutionVisualization( int  state );
+
+    void changeEvolutionFilterOption( int state );
+
+    void changeEvolutionFilterSpecificOption( int state );
 
 	/**
 	            *  \fn public  saveGraphToDB
@@ -226,6 +232,12 @@ public slots:
 	            *  \brief Show dialog to write path to git repo which will be loaded
 	            */
 	void loadFromGit();
+
+    /**
+     * void loadLuaGraph()
+     * @brief Load lua graph without visualization
+     */
+    void loadLuaGraph();
 
 	/**
 	            *  \fn public  labelOnOff(bool checked)
@@ -467,11 +479,6 @@ public slots:
 	    * @brief create Kinect Button
 	 */
 	void createKinectWindow();
-
-	/**
-	 * @brief calculateRansac
-	 */
-	void calculateRansac();
 #endif
 #endif
 
@@ -556,6 +563,13 @@ public slots:
 	 * @brief Moves the slider if evolution is running.
 	 */
 	void move();
+
+    /**
+     * void changeCommits( bool change );
+     * @brief Change repository commit when changing versions
+     * @param change True, if repository should change, otherwise false
+     */
+    void changeCommits( bool change );
 
 	/**
 	 * void fasterEvolution()
@@ -941,11 +955,6 @@ private:
 	QPushButton* b_start_leap;
 
 	/**
-	 * @brief Button for start calculate Ransac Surface
-	 */
-	QPushButton* b_start_ransac;
-
-	/**
 	 * QPushButton start speech recognition
 	 *@brief b_start_speech
 	 */
@@ -1000,12 +1009,6 @@ private:
 	QPushButton* b_git_diff;
 
 	/**
-	 * QPushButton* b_git_lua_graph;
-	 * @brief Button which creates git lua graph
-	 */
-	QPushButton* b_git_lua_graph;
-
-	/**
 	 * QLabel * labelEvolutionSlider
 	 * @brief Shows current vizualized version
 	 */
@@ -1016,6 +1019,22 @@ private:
 	 * @brief Timer which interval periodically invokes next version
 	 */
 	QTimer* evolutionTimer;
+
+    /**
+     *CheckBox for changes repository's commits
+     *@brief chb_git_changeCommits
+     */
+    QCheckBox* chb_git_changeCommits;
+
+    /**
+     * QComboBox* cb_git_evoVisualizeMethod
+     * @brief cb_git_evoVisualizeMethod
+     */
+    QComboBox* cb_git_evoVisualizeMethod;
+
+    QComboBox* cb_git_authors;
+
+    QComboBox* cb_git_files;
 
 	bool isRunning;
 
@@ -1117,10 +1136,10 @@ private:
 	QComboBox* nodeTypeComboBox;
 
 	/**
-	    *  int isPlaying
-	    *  \brief Flag if layout is running
-	    */
-	int isPlaying;
+		*  bool isPlaying
+		*  \brief Flag if layout is running
+		*/
+	bool isPlaying;
 
 	/**
 	    *  \fn private  createActions
@@ -1288,10 +1307,10 @@ private:
 	QComboBox* edgeTypeComboBox;
 
 	/**
-	    *  int isEBPlaying
-	    *  \brief Flag if edge bundling is running
-	    */
-	int isEBPlaying;
+		*  bool isEBPlaying
+		*  \brief Flag if edge bundling is running
+		*/
+	bool isEBPlaying;
 
 public:
 
@@ -1433,6 +1452,14 @@ public:
 	 * @return QWidget for clustering functionality
 	 */
 	QWidget* createMoreFeaturesTab( QFrame* line );
+
+    /**
+     * @author Michael Garaj
+     * @brief createEvolutionTab add elements to QWidget for evolution functionality
+     * @param line pointer to add line
+     * @return QWidget for evolution functionality
+     */
+    QWidget* createEvolutionTab( QFrame* line );
 
 	/**
 	 * @author Peter Mendel

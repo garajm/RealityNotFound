@@ -4,7 +4,7 @@
  */
 #include "Data/Edge.h"
 #include "Data/Graph.h"
-#include "Math/Bezier.h"
+#include "osgModeling/Bezier"
 
 #include "Util/ApplicationConfig.h"
 
@@ -30,7 +30,7 @@ Data::Edge::Edge( qlonglong id, QString name, Data::Graph* graph, osg::ref_ptr<D
 	this->insertChild( INDEX_CYLINDER, createEdgeCylinder( NULL ), false );
 	this->insertChild( INDEX_LINE, createEdgeLine( NULL ), false );
 	this->insertChild( INDEX_CURVE, createEdgeCurve( NULL ), false );
-	setValue( graph->getEdgeVisual(), true );
+	setValue( static_cast<unsigned int>( graph->getEdgeVisual() ), true );
 
 	//updateCoordinates(getSrcNode()->getTargetPosition(), getDstNode()->getTargetPosition());
 	updateCoordinates( getSrcNode()->restrictedTargetPosition(), getDstNode()->restrictedTargetPosition() );
@@ -84,7 +84,7 @@ void Data::Edge::setEdgePieces( QList<osg::ref_ptr<Data::Edge> > edgePieces )
 		( *iEdge )->setEdgeParent( this );
 		( *iEdge )->getSrcNode()->setInvisible( true );
 		( *iEdge )->getDstNode()->setInvisible( true );
-		iEdge ++;
+		++iEdge;
 	}
 
 	getSrcNode()->setInvisible( false );
@@ -292,12 +292,12 @@ osg::ref_ptr<osg::Geode> Data::Edge::createLabel( QString name )
 /*
 float Data::Edge::getEdgeStrength() const
 {
-    return edgeStrength;
+	return edgeStrength;
 }
 
 void Data::Edge::setEdgeStrength( float value )
 {
-    edgeStrength = value;
+	edgeStrength = value;
 }
 */
 osg::ref_ptr<Data::Node> Data::Edge::getSecondNode( osg::ref_ptr<Data::Node> firstNode )
@@ -483,7 +483,20 @@ void Data::Edge::setVisual( int index )
 	setValue( INDEX_CYLINDER, false );
 	setValue( INDEX_LINE, false );
 	setValue( INDEX_CURVE, false );
-	setValue( index, !isInvisible );
+	setValue( static_cast<unsigned int>( index ), !isInvisible );
+}
+
+void Data::Edge::reloadColor() {
+    osg::Geometry* geometry  = getChild( INDEX_QUAD )->asGeode()->getDrawable( 0 )->asGeometry();
+    if( geometry != nullptr) {
+        osg::Vec4Array* colorArray =  dynamic_cast<osg::Vec4Array*>( geometry->getColorArray() );
+        colorArray->pop_back();
+        colorArray->push_back( this->edgeColor );
+    }
+
+//    ( dynamic_cast<osg::ShapeDrawable*>( getChild( INDEX_CURVE )->asGeode()->getDrawable( 0 ) ) )->setColor( this->edgeColor );
+//    ( dynamic_cast<osg::ShapeDrawable*>( getChild( INDEX_CYLINDER )->asGeode()->getDrawable( 0 ) ) )->setColor( this->edgeColor );
+//    ( dynamic_cast<osg::ShapeDrawable*>( getChild( INDEX_LINE )->asGeode()->getDrawable( 0 ) ) )->setColor( this->edgeColor );
 }
 
 //Marak start

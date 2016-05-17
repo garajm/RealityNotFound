@@ -81,13 +81,15 @@ public:
 	 * \fn loadGraphFromGit
 	 * \brief Loads graph from git repo.
 	 */
-	Data::Graph* loadGraphFromGit( QString filepath );
+    bool loadEvolutionGraphFromGit( QString filepath );
 
 	/**
 	 * \fn loadGraphFromDB
 	 * \brief Loads selected graph from database.
 	 */
-	Data::Graph* loadGraphFromDB( qlonglong graphID, qlonglong layoutID );
+    Data::Graph* loadGraphFromDB( qlonglong graphID, qlonglong layoutID );
+
+    Data::Graph* importEvolutionGraph( QString filepath );
 
 	/**
 	 * \fn simpleGraph
@@ -144,11 +146,11 @@ public:
 	}
 
 	/**
-     * Repository::Git::GitEvolutionGraph* getActiveEvolutionGraph()
+	 * Repository::Git::GitEvolutionGraph* getActiveEvolutionGraph()
 	 * @brief Returns active evolution graph
 	 * @return active evolution graph
 	 */
-    Repository::Git::GitEvolutionGraph* getActiveEvolutionGraph()
+	Repository::Git::GitEvolutionGraph* getActiveEvolutionGraph()
 	{
 		return this->activeEvolutionGraph;
 	}
@@ -206,7 +208,7 @@ public:
 	 * @param path Project path of the file
 	 * @param version Index of currently vizualized version in graph
 	 */
-	void getDiffInfo( QString path, int version );
+    void getDiffInfo( QString path, int version );
 
 private:
 	/**
@@ -262,10 +264,10 @@ private:
 	bool noDatabaseFind;
 
 	/**
-     * Repository::Git::GitEvolutionGraph* activeEvolutionGraph
+	 * Repository::Git::GitEvolutionGraph* activeEvolutionGraph
 	 * @brief Active evolution graph
 	 */
-    Repository::Git::GitEvolutionGraph* activeEvolutionGraph;
+	Repository::Git::GitEvolutionGraph* activeEvolutionGraph;
 }; // class
 } // namespace
 
